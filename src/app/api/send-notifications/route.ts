@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { adminDb, adminMessaging } from "@/lib/firebase-admin";
+import { adminDB, adminMessaging } from "@/lib/firebase-admin";
 
 export async function POST(req: NextRequest) {
   try {
@@ -13,7 +13,7 @@ export async function POST(req: NextRequest) {
     }
 
     // ✅ Since token is the document ID
-    const snap = await adminDb.collection("push_token").get();
+    const snap = await adminDB.collection("push_token").get();
     const tokens = snap.docs.map((d) => d.id).filter(Boolean);
 
     console.log(`📱 Found ${tokens.length} tokens`);
