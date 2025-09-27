@@ -1,27 +1,5 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
-import { useClock } from "@/hooks/useClock";
-import { useSensorData, LocationKey } from "@/hooks/useSensorData";
-import { SensorCard } from "@/components/SensorCard";
-import { SimpleArea } from "@/components/charts/SimpleArea";
-import { Combined } from "@/components/charts/Combined";
-import CampusMap from "@/components/CampusMap";
-import { FaClock } from "react-icons/fa";
-import { useNotifications } from "@/hooks/useNotifications";
-
-// ✅ Firestore
-import { collection, getDocs } from "firebase/firestore";
-import { db } from "@/lib/firebase";
-import type { SeverityLevel } from "@/types/severity";
-
-interface RecommendationData {
-  min: number;
-  max: number;
-  recommendation: string;
-  severity: string;
-}
-
 interface GoogleData {
   aqi: number;
   uv: number;
@@ -33,6 +11,31 @@ interface GoogleData {
   heatLocation?: string;
   heatSource?: string;
 }
+// Add after existing interfaces
+interface ThresholdData {
+  min: number;
+  max: number;
+  recommendation: string;
+  severity: string;
+}
+
+import React, { useEffect, useState } from "react";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { FaClock } from "react-icons/fa";
+import { SensorCard } from "@/components/SensorCard";
+import { SimpleArea } from "@/components/charts/SimpleArea";
+import { Combined } from "@/components/charts/Combined";
+import CampusMap from "@/components/CampusMap";
+import { useClock } from "@/hooks/useClock";
+import { useSensorData, LocationKey } from "@/hooks/useSensorData";
+import type { SeverityLevel } from "@/types/severity";
+import Image from "next/image";
+
+// Auth + Firestore
+import { auth, db } from "@/lib/firebase";
+import { onAuthStateChanged, signOut as fbSignOut } from "firebase/auth";
+import { doc, getDoc, collection, getDocs } from "firebase/firestore";
 
 const locationDetails: Record<
   LocationKey,
@@ -80,6 +83,8 @@ const getSeverityColor = (severity: string) => {
   }
 };
 
+// Remove unused functions: getRecommendation, getSensorSeverity
+
 // Rank severities
 const severityRank: Record<string, number> = {
   low: 1,
@@ -111,29 +116,45 @@ function getHighestSeverity(severities: (string | undefined)[]): string {
 function getBgColorFromSeverity(severity: string): string {
   switch (severity.toLowerCase()) {
     case "low":
-      return "bg-green-500";
+      return "bg-green-500"; // ✅ Low
     case "moderate":
-      return "bg-[#FFD93D]";
+      return "bg-[#FFD93D]"; // ✅ Moderate
     case "high":
-      return "bg-[#FF9A00]";
+      return "bg-[#FF9A00]"; // ✅ High
     case "extreme":
-      return "bg-[#E62727]";
+      return "bg-[#E62727]"; // ✅ Extreme
     case "critical":
-      return "bg-black";
+      return "bg-black"; // ⚡ Example for critical (change as needed)
     default:
-      return "bg-gray-400";
+      return "bg-gray-400"; // fallback
   }
 }
 
-export default function Page() {
+export default function AdminPage() {
   const now = useClock();
   const [activeLocation, setActiveLocation] = useState<LocationKey>(
     "SV Entrance / Parking Lot"
   );
 
-  // 🔔 Notification hook
-  const { permission, requestPermission } = useNotifications();
-  const [showPrompt, setShowPrompt] = useState(true);
+  // Auth - remove unused states
+  const router = useRouter();
+
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, async (user) => {
+      if (!user) {
+        router.push("/login");
+        return;
+      }
+      const snap = await getDoc(doc(db, "admin", user.uid));
+      if (snap.exists()) {
+        const userRole = snap.data().role;
+        if (userRole !== "admin") router.push("/login");
+      } else {
+        router.push("/login");
+      }
+    });
+    return () => unsubscribe();
+  }, [router]);
 
   // ✅ unified hook: latest + rows
   const { latest, rows } = useSensorData(activeLocation, 8);
@@ -146,14 +167,14 @@ export default function Page() {
   const [uvSeverity, setUvSeverity] = useState<SeverityLevel>("low");
   const [heatSeverity, setHeatSeverity] = useState<SeverityLevel>("low");
 
-  // ✅ Google API data
+  // ✅ Google API data with proper typing
   const [googleData, setGoogleData] = useState<GoogleData | null>(null);
 
   useEffect(() => {
     async function fetchGoogle() {
       try {
         const res = await fetch("/api/google-readings");
-        const data: GoogleData = await res.json();
+        const data = await res.json();
         setGoogleData(data);
       } catch (err) {
         console.error("Google API fetch error:", err);
@@ -167,9 +188,9 @@ export default function Page() {
     if (!latest) return;
 
     (async () => {
-      const categories = ["AQI", "Heat", "UV"] as const;
+      const categories = ["AQI", "Heat", "UV"];
       const messages: string[] = [];
-      let maxSeverity: SeverityLevel = "low";
+      let maxSeverity = "low";
 
       for (const cat of categories) {
         const snap = await getDocs(
@@ -177,7 +198,7 @@ export default function Page() {
         );
 
         snap.forEach((docSnap) => {
-          const data = docSnap.data() as RecommendationData;
+          const data = docSnap.data() as ThresholdData;
           const value =
             cat === "AQI"
               ? latest.aqi
@@ -188,11 +209,13 @@ export default function Page() {
           if (value >= data.min && value <= data.max) {
             messages.push(`${cat}: ${data.recommendation}`);
 
+            // update per-sensor severity
             const sev = data.severity.toLowerCase() as SeverityLevel;
             if (cat === "AQI") setAqiSeverity(sev);
             if (cat === "Heat") setHeatSeverity(sev);
             if (cat === "UV") setUvSeverity(sev);
 
+            // track max severity for overall
             if (severityRank[sev] > severityRank[maxSeverity]) {
               maxSeverity = sev;
             }
@@ -203,84 +226,113 @@ export default function Page() {
       setRecommendation(messages.join(" | "));
     })();
   }, [latest]);
+
   return (
-    <main
-      className={`min-h-screen text-white font-['Inter'] p-2 transition-colors duration-500 bg-blue-300`}
-    >
+    <main className="bg-blue-300 text-[#0A0A0A] font-['Inter'] min-h-screen p-3">
       {/* Header */}
-      <header className="mt-4 border-8 border-[#E8F9FF] drop-shadow-2xl p-4 bg-[#EFEEEA] text-white rounded-lg flex flex-col md:flex-row justify-between items-center gap-6">
-        {/* Clock */}
-        <div className="flex items-center gap-2">
-          <FaClock className="text-2xl text-[#FFB703]" />
-          <div className="bg-[#0067B1] rounded-lg shadow text-center px-4 py-2 border border-[#A7A9AC]">
-            <p className="text-lg font-medium">Adamson University</p>
-            <div className="text-2xl font-bold">{now.toLocaleTimeString()}</div>
-          </div>
-        </div>
-
-        {/* Recommendation */}
-        <div className="flex-1 flex justify-center">
-          <div
-            className={`flex-1 ${getBgColorFromSeverity(
-              getHighestSeverity([aqiSeverity, uvSeverity, heatSeverity])
-            )} text-black rounded-md shadow-md text-center p-2`}
-          >
-            <h1 className="text-xl font-semibold">
-              ⚠️ <strong>Recommendation:</strong> {recommendation}
-            </h1>
-          </div>
-        </div>
-      </header>
-
-      {/* Notification Prompt */}
-      {showPrompt && permission === "default" && (
-        <div className="my-4 p-4 bg-white rounded-lg shadow-lg">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <span className="text-2xl">🔔</span>
-              <div className="text-black">
-                <p className="font-semibold">Get Air Quality Alerts</p>
-                <p className="text-sm text-gray-600">
-                  Stay informed about significant changes in air quality, UV,
-                  and heat levels.
-                </p>
+      <div className="p-5 ">
+        <header className="mt-3.5 shadow-xl bg-white rounded-2xl">
+          <div className="flex justify-around  p-2">
+            {/* Logo and Title */}
+            <div className="text-center mt-2">
+              <Image
+                src="/adu_logo.png"
+                alt="ADU Logo"
+                width={120}
+                height={120}
+              />
+            </div>
+            {/* Clock */}
+            <div className="flex items-center gap-2">
+              <FaClock className="text-2xl text-[#FFB703]" />
+              <div className="bg-[#0067B1] rounded-lg shadow text-center px-4 py-2 border border-[#A7A9AC]">
+                <p className="text-lg font-medium">Adamson University</p>
+                <div className="text-2xl font-bold">
+                  {now.toLocaleTimeString()}
+                </div>
               </div>
             </div>
-            <div className="flex gap-2">
+
+            {/* Navigation */}
+            <div className="flex flex-row ">
+              <div className="self-center">
+                <nav className="mt-3 text-center space-x-8 text-2xl">
+                  <Link
+                    href="/admin/aqi"
+                    className="hover:underline underline-offset-8"
+                  >
+                    Air Quality
+                  </Link>
+                  <Link
+                    href="/admin/uv"
+                    className="hover:underline underline-offset-8"
+                  >
+                    UV Intensity
+                  </Link>
+                  <Link
+                    href="/admin/heat"
+                    className="hover:underline underline-offset-8"
+                  >
+                    Heat Index
+                  </Link>
+                  <Link
+                    href="/admin/notif"
+                    className="hover:underline underline-offset-8"
+                  >
+                    Notifications
+                  </Link>
+                </nav>
+              </div>
+            </div>
+
+            {/* Logout */}
+            <div className="self-end">
               <button
-                onClick={() => setShowPrompt(false)}
-                className="px-4 py-2 text-gray-600 hover:bg-gray-100 rounded"
+                onClick={() =>
+                  fbSignOut(auth).then(() => router.push("/login"))
+                }
+                className="text-red-500 self-center hover:text-red-700 text-2xl"
+                aria-label="Logout"
               >
-                Not Now
-              </button>
-              <button
-                onClick={async () => {
-                  const success = await requestPermission();
-                  if (success) setShowPrompt(false);
-                }}
-                className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
-              >
-                Enable
+                Log out
               </button>
             </div>
           </div>
-        </div>
-      )}
+        </header>
+      </div>
 
+      {/* Recommendation */}
+      <div className="flex justify-center items-center">
+        <div className="m-5 bg-white rounded-2xl max-w-6xl">
+          <section className="h-auto p-5 gap-2 shadow-2xl">
+            <div className="flex flex-col sm:flex-col md:flex-row gap-4 self-center">
+              <div
+                className={`flex-1 ${getBgColorFromSeverity(
+                  getHighestSeverity([aqiSeverity, uvSeverity, heatSeverity])
+                )} text-black rounded-md shadow-md text-center p-2`}
+              >
+                <h1 className="text-3xl font-semibold p-3">
+                  ⚠️ <strong>Recommendation:</strong> {recommendation}
+                </h1>
+              </div>
+            </div>
+          </section>
+        </div>
+      </div>
       {/* Current values + charts */}
-      <section className="my-3">
+      <section className="my-6">
         {latest && (
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-3 mb-2">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-3 mb-6">
             <SensorCard
               title="Air Quality"
               value={`${latest.aqi} AQI`}
               icon="🌫️"
-              iconsapiValue="🌫️"
               severity={aqiSeverity as SeverityLevel}
               apiValue={googleData ? `${googleData.aqi} AQI` : "Loading..."}
-              location={googleData?.locationName || "Unknown location"}
+              location={googleData?.locationName || "Unknown location"} // 👈 dynamic location
               source={googleData?.source || "Loading..."}
             >
+              <div></div>
               <SimpleArea
                 data={rows}
                 dataKey="aqi"
@@ -293,7 +345,6 @@ export default function Page() {
               title="UV Intensity"
               value={`${latest.uv} UV`}
               icon="☀️"
-              iconsapiValue="🌞"
               severity={uvSeverity as SeverityLevel}
               apiValue={googleData ? `${googleData.uv} UV` : "Loading..."}
               location={googleData?.uvLocation || "Unknown location"}
@@ -311,7 +362,6 @@ export default function Page() {
               title="Heat Index"
               value={latest.heat ? `${latest.heat.toFixed(1)} °C` : "—"}
               icon="🌡️"
-              iconsapiValue="🌦️"
               severity={heatSeverity as SeverityLevel}
               apiValue={googleData ? `${googleData.heat} °C` : "Loading..."}
               location={googleData?.heatLocation || "Unknown location"}
@@ -326,25 +376,28 @@ export default function Page() {
             </SensorCard>
           </div>
         )}
-
-        {/* Charts + Map */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 ">
-          <div className="col-span-1 flex flex-col justify-center items-center">
-            <h3 className="text-xl font-bold text-black mb-3">
-              Location:{" "}
-              <span
-                className={`underline underline-offset-8 ${locationDetails[activeLocation].colorClass} ${locationDetails[activeLocation].fontSize}`}
-              >
-                {activeLocation}
-              </span>
+        {/* Map + Combined chart */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+          <div className="flex flex-col justify-center items-center">
+            <h3 className="text-lg font-semibold text-black mb-2">
+              <p className="text-black mt-2 font-semibold text-lg">
+                Location:{" "}
+                <span
+                  className={`underline underline-offset-8 ${locationDetails[activeLocation].colorClass} ${locationDetails[activeLocation].fontSize}`}
+                >
+                  {activeLocation || "None selected"}
+                </span>
+              </p>
             </h3>
             <CampusMap
-              onMarkerClick={(loc) => setActiveLocation(loc as LocationKey)}
+              onMarkerClick={(location) =>
+                setActiveLocation(location as LocationKey)
+              }
             />
           </div>
 
           <div className="col-span-1 lg:col-span-2 p-2">
-            <h3 className="text-xl font-semibold text-black mb-2">
+            <h3 className="text-xl font-semibold text-black mb-4">
               Combined Analysis <br />
               {latest && (
                 <span className="ml-2 text-xl font-semibold text-gray-700">

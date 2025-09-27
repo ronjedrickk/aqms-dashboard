@@ -1,0 +1,189 @@
+[debug] [2025-09-27T10:29:53.346Z] ----------------------------------------------------------------------
+[debug] [2025-09-27T10:29:53.349Z] Command:       C:\Program Files\nodejs\node.exe C:\Users\user\AppData\Roaming\npm\node_modules\firebase-tools\lib\bin\firebase.js deploy
+[debug] [2025-09-27T10:29:53.350Z] CLI Version:   14.17.0
+[debug] [2025-09-27T10:29:53.350Z] Platform:      win32
+[debug] [2025-09-27T10:29:53.350Z] Node Version:  v20.19.5
+[debug] [2025-09-27T10:29:53.351Z] Time:          Sat Sep 27 2025 18:29:53 GMT+0800 (Philippine Standard Time)
+[debug] [2025-09-27T10:29:53.351Z] ----------------------------------------------------------------------
+[debug] 
+[debug] [2025-09-27T10:29:53.579Z] > command requires scopes: ["email","openid","https://www.googleapis.com/auth/cloudplatformprojects.readonly","https://www.googleapis.com/auth/firebase","https://www.googleapis.com/auth/cloud-platform"]
+[debug] [2025-09-27T10:29:53.579Z] > authorizing via signed-in user (aduaqms@gmail.com)
+[debug] [2025-09-27T10:29:53.579Z] [iam] checking project adu-aqms-28741 for permissions ["cloudfunctions.functions.create","cloudfunctions.functions.delete","cloudfunctions.functions.get","cloudfunctions.functions.list","cloudfunctions.functions.update","cloudfunctions.operations.get","firebase.projects.get","firebasehosting.sites.update"]
+[debug] [2025-09-27T10:29:53.580Z] Checked if tokens are valid: true, expires at: 1758971119114
+[debug] [2025-09-27T10:29:53.581Z] Checked if tokens are valid: true, expires at: 1758971119114
+[debug] [2025-09-27T10:29:53.582Z] >>> [apiv2][query] POST https://cloudresourcemanager.googleapis.com/v1/projects/adu-aqms-28741:testIamPermissions [none]
+[debug] [2025-09-27T10:29:53.582Z] >>> [apiv2][(partial)header] POST https://cloudresourcemanager.googleapis.com/v1/projects/adu-aqms-28741:testIamPermissions x-goog-quota-user=projects/adu-aqms-28741
+[debug] [2025-09-27T10:29:53.582Z] >>> [apiv2][body] POST https://cloudresourcemanager.googleapis.com/v1/projects/adu-aqms-28741:testIamPermissions {"permissions":["cloudfunctions.functions.create","cloudfunctions.functions.delete","cloudfunctions.functions.get","cloudfunctions.functions.list","cloudfunctions.functions.update","cloudfunctions.operations.get","firebase.projects.get","firebasehosting.sites.update"]}
+[debug] [2025-09-27T10:29:54.586Z] <<< [apiv2][status] POST https://cloudresourcemanager.googleapis.com/v1/projects/adu-aqms-28741:testIamPermissions 200
+[debug] [2025-09-27T10:29:54.586Z] <<< [apiv2][body] POST https://cloudresourcemanager.googleapis.com/v1/projects/adu-aqms-28741:testIamPermissions {"permissions":["cloudfunctions.functions.create","cloudfunctions.functions.delete","cloudfunctions.functions.get","cloudfunctions.functions.list","cloudfunctions.functions.update","cloudfunctions.operations.get","firebase.projects.get","firebasehosting.sites.update"]}
+[debug] [2025-09-27T10:29:54.587Z] Checked if tokens are valid: true, expires at: 1758971119114
+[debug] [2025-09-27T10:29:54.587Z] Checked if tokens are valid: true, expires at: 1758971119114
+[debug] [2025-09-27T10:29:54.587Z] >>> [apiv2][query] POST https://iam.googleapis.com/v1/projects/adu-aqms-28741/serviceAccounts/adu-aqms-28741@appspot.gserviceaccount.com:testIamPermissions [none]
+[debug] [2025-09-27T10:29:54.587Z] >>> [apiv2][body] POST https://iam.googleapis.com/v1/projects/adu-aqms-28741/serviceAccounts/adu-aqms-28741@appspot.gserviceaccount.com:testIamPermissions {"permissions":["iam.serviceAccounts.actAs"]}
+[debug] [2025-09-27T10:29:55.710Z] <<< [apiv2][status] POST https://iam.googleapis.com/v1/projects/adu-aqms-28741/serviceAccounts/adu-aqms-28741@appspot.gserviceaccount.com:testIamPermissions 200
+[debug] [2025-09-27T10:29:55.710Z] <<< [apiv2][body] POST https://iam.googleapis.com/v1/projects/adu-aqms-28741/serviceAccounts/adu-aqms-28741@appspot.gserviceaccount.com:testIamPermissions {"permissions":["iam.serviceAccounts.actAs"]}
+[debug] [2025-09-27T10:29:55.711Z] Checked if tokens are valid: true, expires at: 1758971119114
+[debug] [2025-09-27T10:29:55.711Z] Checked if tokens are valid: true, expires at: 1758971119114
+[debug] [2025-09-27T10:29:55.711Z] >>> [apiv2][query] GET https://firebase.googleapis.com/v1beta1/projects/adu-aqms-28741 [none]
+[debug] [2025-09-27T10:29:56.027Z] <<< [apiv2][status] GET https://firebase.googleapis.com/v1beta1/projects/adu-aqms-28741 200
+[debug] [2025-09-27T10:29:56.027Z] <<< [apiv2][body] GET https://firebase.googleapis.com/v1beta1/projects/adu-aqms-28741 {"projectId":"adu-aqms-28741","projectNumber":"59449331551","displayName":"Adu-Aqms","name":"projects/adu-aqms-28741","resources":{"hostingSite":"adu-aqms-28741"},"state":"ACTIVE","etag":"1_dc9c286a-54c7-4bf5-a2b4-e657164d3983"}
+[debug] [2025-09-27T10:29:59.791Z] defaultcredentials: writing to file C:\Users\user\AppData\Roaming\firebase\aduaqms_gmail_com_application_default_credentials.json
+[debug] [2025-09-27T10:29:59.793Z] Checked if tokens are valid: true, expires at: 1758971119114
+[debug] [2025-09-27T10:29:59.793Z] Checked if tokens are valid: true, expires at: 1758971119114
+[debug] [2025-09-27T10:29:59.794Z] >>> [apiv2][query] GET https://firebasehosting.googleapis.com/v1beta1/projects/adu-aqms-28741/sites pageToken=&pageSize=10
+[debug] [2025-09-27T10:30:00.394Z] <<< [apiv2][status] GET https://firebasehosting.googleapis.com/v1beta1/projects/adu-aqms-28741/sites 200
+[debug] [2025-09-27T10:30:00.394Z] <<< [apiv2][body] GET https://firebasehosting.googleapis.com/v1beta1/projects/adu-aqms-28741/sites {"sites":[{"name":"projects/adu-aqms-28741/sites/adu-aqms-28741","defaultUrl":"https://adu-aqms-28741.web.app","appId":"1:59449331551:web:4c1b01af4409e6016030ea","type":"DEFAULT_SITE"}]}
+[debug] [2025-09-27T10:30:00.394Z] Checked if tokens are valid: true, expires at: 1758971119114
+[debug] [2025-09-27T10:30:00.394Z] Checked if tokens are valid: true, expires at: 1758971119114
+[debug] [2025-09-27T10:30:00.395Z] >>> [apiv2][query] GET https://firebase.googleapis.com/v1beta1/projects/-/webApps/1:59449331551:web:4c1b01af4409e6016030ea/config [none]
+[debug] [2025-09-27T10:30:01.176Z] <<< [apiv2][status] GET https://firebase.googleapis.com/v1beta1/projects/-/webApps/1:59449331551:web:4c1b01af4409e6016030ea/config 200
+[debug] [2025-09-27T10:30:01.176Z] <<< [apiv2][body] GET https://firebase.googleapis.com/v1beta1/projects/-/webApps/1:59449331551:web:4c1b01af4409e6016030ea/config {"projectId":"adu-aqms-28741","appId":"1:59449331551:web:4c1b01af4409e6016030ea","storageBucket":"adu-aqms-28741.firebasestorage.app","apiKey":"AIzaSyD0A5sSpOnfUkRq0nBwGKgPnTydujt2D3c","authDomain":"adu-aqms-28741.firebaseapp.com","messagingSenderId":"59449331551","measurementId":"G-NYTCV7RMZ7"}
+[info] 
+   Thank you for trying our early preview of Next.js support on Firebase Hosting.
+   During the preview, support is best-effort and breaking changes can be expected. Proceed with caution.
+
+   Documentation: https://firebase.google.com/docs/hosting/frameworks/nextjs
+   File a bug: https://github.com/firebase/firebase-tools/issues/new?template=bug_report.md
+   Submit a feature request: https://github.com/firebase/firebase-tools/issues/new?template=feature_request.md
+
+   We'd love to learn from you. Express your interest in helping us shape the future of Firebase Hosting: https://goo.gle/41enW5X
+
+[debug] [2025-09-27T10:30:09.729Z] Checked if tokens are valid: true, expires at: 1758971119114
+[debug] [2025-09-27T10:30:09.730Z] Checked if tokens are valid: true, expires at: 1758971119114
+[debug] [2025-09-27T10:30:09.730Z] >>> [apiv2][query] GET https://firebasehosting.googleapis.com/v1beta1/projects/adu-aqms-28741/sites/adu-aqms-28741 [none]
+[debug] [2025-09-27T10:30:10.236Z] <<< [apiv2][status] GET https://firebasehosting.googleapis.com/v1beta1/projects/adu-aqms-28741/sites/adu-aqms-28741 200
+[debug] [2025-09-27T10:30:10.236Z] <<< [apiv2][body] GET https://firebasehosting.googleapis.com/v1beta1/projects/adu-aqms-28741/sites/adu-aqms-28741 {"name":"projects/adu-aqms-28741/sites/adu-aqms-28741","defaultUrl":"https://adu-aqms-28741.web.app","appId":"1:59449331551:web:4c1b01af4409e6016030ea","type":"DEFAULT_SITE"}
+[info]    ▲ Next.js 15.0.3
+
+[info]    - Environments: .env.local
+
+
+[info]    Creating an optimized production build ...
+
+[info] uncaughtException [Error: EPERM: operation not permitted, open 'C:\Users\user\Desktop\aqms-dashboard\.next\trace'] {
+  errno: -4048,
+  code: 'EPERM',
+  syscall: 'open',
+  path: 'C:\\Users\\user\\Desktop\\aqms-dashboard\\.next\\trace'
+}
+
+[debug] [2025-09-27T10:30:16.899Z] SyntaxError: C:\Users\user\Desktop\aqms-dashboard\.next\server\middleware-manifest.json: Unexpected end of JSON input
+    at JSON.parse (<anonymous>)
+    at _readFile (C:\Users\user\AppData\Roaming\npm\node_modules\firebase-tools\node_modules\jsonfile\index.js:25:16)
+    at async isUsingMiddleware (C:\Users\user\AppData\Roaming\npm\node_modules\firebase-tools\lib\frameworks\next\utils.js:87:36)
+    at async build (C:\Users\user\AppData\Roaming\npm\node_modules\firebase-tools\lib\frameworks\next\index.js:84:9)
+    at async prepareFrameworks (C:\Users\user\AppData\Roaming\npm\node_modules\firebase-tools\lib\frameworks\index.js:226:33)
+    at async deploy (C:\Users\user\AppData\Roaming\npm\node_modules\firebase-tools\lib\deploy\index.js:78:9)
+[error] 
+[error] Error: An unexpected error has occurred.
+[debug] [2025-09-27T10:31:17.042Z] ----------------------------------------------------------------------
+[debug] [2025-09-27T10:31:17.045Z] Command:       C:\Program Files\nodejs\node.exe C:\Users\user\AppData\Roaming\npm\node_modules\firebase-tools\lib\bin\firebase.js deploy --only hosting
+[debug] [2025-09-27T10:31:17.046Z] CLI Version:   14.17.0
+[debug] [2025-09-27T10:31:17.046Z] Platform:      win32
+[debug] [2025-09-27T10:31:17.046Z] Node Version:  v20.19.5
+[debug] [2025-09-27T10:31:17.046Z] Time:          Sat Sep 27 2025 18:31:17 GMT+0800 (Philippine Standard Time)
+[debug] [2025-09-27T10:31:17.046Z] ----------------------------------------------------------------------
+[debug] 
+[debug] [2025-09-27T10:31:17.267Z] > command requires scopes: ["email","openid","https://www.googleapis.com/auth/cloudplatformprojects.readonly","https://www.googleapis.com/auth/firebase","https://www.googleapis.com/auth/cloud-platform"]
+[debug] [2025-09-27T10:31:17.267Z] > authorizing via signed-in user (aduaqms@gmail.com)
+[debug] [2025-09-27T10:31:17.267Z] [iam] checking project adu-aqms-28741 for permissions ["firebase.projects.get","firebasehosting.sites.update"]
+[debug] [2025-09-27T10:31:17.269Z] Checked if tokens are valid: true, expires at: 1758971119114
+[debug] [2025-09-27T10:31:17.269Z] Checked if tokens are valid: true, expires at: 1758971119114
+[debug] [2025-09-27T10:31:17.270Z] >>> [apiv2][query] POST https://cloudresourcemanager.googleapis.com/v1/projects/adu-aqms-28741:testIamPermissions [none]
+[debug] [2025-09-27T10:31:17.270Z] >>> [apiv2][(partial)header] POST https://cloudresourcemanager.googleapis.com/v1/projects/adu-aqms-28741:testIamPermissions x-goog-quota-user=projects/adu-aqms-28741
+[debug] [2025-09-27T10:31:17.270Z] >>> [apiv2][body] POST https://cloudresourcemanager.googleapis.com/v1/projects/adu-aqms-28741:testIamPermissions {"permissions":["firebase.projects.get","firebasehosting.sites.update"]}
+[debug] [2025-09-27T10:31:18.262Z] <<< [apiv2][status] POST https://cloudresourcemanager.googleapis.com/v1/projects/adu-aqms-28741:testIamPermissions 200
+[debug] [2025-09-27T10:31:18.262Z] <<< [apiv2][body] POST https://cloudresourcemanager.googleapis.com/v1/projects/adu-aqms-28741:testIamPermissions {"permissions":["firebase.projects.get","firebasehosting.sites.update"]}
+[debug] [2025-09-27T10:31:18.263Z] Checked if tokens are valid: true, expires at: 1758971119114
+[debug] [2025-09-27T10:31:18.263Z] Checked if tokens are valid: true, expires at: 1758971119114
+[debug] [2025-09-27T10:31:18.263Z] >>> [apiv2][query] GET https://firebase.googleapis.com/v1beta1/projects/adu-aqms-28741 [none]
+[debug] [2025-09-27T10:31:18.563Z] <<< [apiv2][status] GET https://firebase.googleapis.com/v1beta1/projects/adu-aqms-28741 200
+[debug] [2025-09-27T10:31:18.563Z] <<< [apiv2][body] GET https://firebase.googleapis.com/v1beta1/projects/adu-aqms-28741 {"projectId":"adu-aqms-28741","projectNumber":"59449331551","displayName":"Adu-Aqms","name":"projects/adu-aqms-28741","resources":{"hostingSite":"adu-aqms-28741"},"state":"ACTIVE","etag":"1_dc9c286a-54c7-4bf5-a2b4-e657164d3983"}
+[debug] [2025-09-27T10:31:22.594Z] defaultcredentials: writing to file C:\Users\user\AppData\Roaming\firebase\aduaqms_gmail_com_application_default_credentials.json
+[debug] [2025-09-27T10:31:22.603Z] Checked if tokens are valid: true, expires at: 1758971119114
+[debug] [2025-09-27T10:31:22.604Z] Checked if tokens are valid: true, expires at: 1758971119114
+[debug] [2025-09-27T10:31:22.605Z] >>> [apiv2][query] GET https://firebasehosting.googleapis.com/v1beta1/projects/adu-aqms-28741/sites pageToken=&pageSize=10
+[debug] [2025-09-27T10:31:23.207Z] <<< [apiv2][status] GET https://firebasehosting.googleapis.com/v1beta1/projects/adu-aqms-28741/sites 200
+[debug] [2025-09-27T10:31:23.207Z] <<< [apiv2][body] GET https://firebasehosting.googleapis.com/v1beta1/projects/adu-aqms-28741/sites {"sites":[{"name":"projects/adu-aqms-28741/sites/adu-aqms-28741","defaultUrl":"https://adu-aqms-28741.web.app","appId":"1:59449331551:web:4c1b01af4409e6016030ea","type":"DEFAULT_SITE"}]}
+[debug] [2025-09-27T10:31:23.207Z] Checked if tokens are valid: true, expires at: 1758971119114
+[debug] [2025-09-27T10:31:23.207Z] Checked if tokens are valid: true, expires at: 1758971119114
+[debug] [2025-09-27T10:31:23.208Z] >>> [apiv2][query] GET https://firebase.googleapis.com/v1beta1/projects/-/webApps/1:59449331551:web:4c1b01af4409e6016030ea/config [none]
+[debug] [2025-09-27T10:31:23.768Z] <<< [apiv2][status] GET https://firebase.googleapis.com/v1beta1/projects/-/webApps/1:59449331551:web:4c1b01af4409e6016030ea/config 200
+[debug] [2025-09-27T10:31:23.768Z] <<< [apiv2][body] GET https://firebase.googleapis.com/v1beta1/projects/-/webApps/1:59449331551:web:4c1b01af4409e6016030ea/config {"projectId":"adu-aqms-28741","appId":"1:59449331551:web:4c1b01af4409e6016030ea","storageBucket":"adu-aqms-28741.firebasestorage.app","apiKey":"AIzaSyD0A5sSpOnfUkRq0nBwGKgPnTydujt2D3c","authDomain":"adu-aqms-28741.firebaseapp.com","messagingSenderId":"59449331551","measurementId":"G-NYTCV7RMZ7"}
+[info] 
+   Thank you for trying our early preview of Next.js support on Firebase Hosting.
+   During the preview, support is best-effort and breaking changes can be expected. Proceed with caution.
+
+   Documentation: https://firebase.google.com/docs/hosting/frameworks/nextjs
+   File a bug: https://github.com/firebase/firebase-tools/issues/new?template=bug_report.md
+   Submit a feature request: https://github.com/firebase/firebase-tools/issues/new?template=feature_request.md
+
+   We'd love to learn from you. Express your interest in helping us shape the future of Firebase Hosting: https://goo.gle/41enW5X
+
+[debug] [2025-09-27T10:31:32.202Z] Checked if tokens are valid: true, expires at: 1758971119114
+[debug] [2025-09-27T10:31:32.202Z] Checked if tokens are valid: true, expires at: 1758971119114
+[debug] [2025-09-27T10:31:32.203Z] >>> [apiv2][query] GET https://firebasehosting.googleapis.com/v1beta1/projects/adu-aqms-28741/sites/adu-aqms-28741 [none]
+[debug] [2025-09-27T10:31:32.721Z] <<< [apiv2][status] GET https://firebasehosting.googleapis.com/v1beta1/projects/adu-aqms-28741/sites/adu-aqms-28741 200
+[debug] [2025-09-27T10:31:32.721Z] <<< [apiv2][body] GET https://firebasehosting.googleapis.com/v1beta1/projects/adu-aqms-28741/sites/adu-aqms-28741 {"name":"projects/adu-aqms-28741/sites/adu-aqms-28741","defaultUrl":"https://adu-aqms-28741.web.app","appId":"1:59449331551:web:4c1b01af4409e6016030ea","type":"DEFAULT_SITE"}
+[info]    ▲ Next.js 15.0.3
+
+[info]    - Environments: .env.local
+
+
+[info]    Creating an optimized production build ...
+
+[info]  ✓ Compiled successfully
+
+[info]    Skipping linting
+
+[info]    Checking validity of types ...
+
+[info]    Collecting page data ...
+
+[info]    Generating static pages (0/14) ...
+
+[info]    Generating static pages (3/14) 
+
+[info]    Generating static pages (6/14) 
+
+[info]    Generating static pages (10/14) 
+
+[info]  ✓ Generating static pages (14/14)
+
+[info]    Finalizing page optimization ...
+
+[info]    Collecting build traces ...
+
+[info] 
+
+[info] Route (app)                              Size     First Load JS
+┌ ○ /                                    3.83 kB         352 kB
+├ ○ /_not-found                          902 B           101 kB
+├ ○ /admin                               2.62 kB         367 kB
+├ ○ /admin/aqi                           2.61 kB         257 kB
+├ ○ /admin/heat                          2.8 kB          257 kB
+├ ○ /admin/notif                         3.59 kB         258 kB
+├ ○ /admin/uv                            2.66 kB         257 kB
+├ ƒ /api/google-readings                 143 B           100 kB
+├ ƒ /api/register-token                  143 B           100 kB
+├ ƒ /api/send-notifications              143 B           100 kB
+└ ○ /login                               2.08 kB         251 kB
++ First Load JS shared by all            100 kB
+  ├ chunks/4bd1b696-6692262b6f8abbfd.js  52.5 kB
+  ├ chunks/517-f70bca10c9c657ed.js       45.8 kB
+  └ other shared chunks (total)          2 kB
+
+
+
+[info] ○  (Static)   prerendered as static content
+ƒ  (Dynamic)  server-rendered on demand
+
+
+[info] Building a Cloud Function to run this application. This is needed due to:
+[info]  • non-static component /api/register-token/route
+[info]  • non-static component /api/send-notifications/route
+[info]  • non-static component /api/google-readings/route
+[info] 
+[debug] [2025-09-27T10:32:33.332Z] Error: EPERM: operation not permitted, rmdir 'C:\Users\user\Desktop\aqms-dashboard\.firebase\adu-aqms-28741\hosting\maps'
+[error] 
+[error] Error: An unexpected error has occurred.
