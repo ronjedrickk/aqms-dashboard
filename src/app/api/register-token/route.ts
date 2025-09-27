@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { adminDb } from "@/lib/firebase-admin";
+import { adminDB } from "@/lib/firebase-admin";
 
 export async function POST(req: NextRequest) {
   try {
@@ -21,7 +21,7 @@ export async function POST(req: NextRequest) {
       token.length
     );
 
-    const tokenRef = adminDb.collection("push_token").doc(token);
+    const tokenRef = adminDB.collection("push_token").doc(token);
 
     if (enabled) {
       await tokenRef.set(
