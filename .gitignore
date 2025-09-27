@@ -42,3 +42,10 @@ next-env.d.ts
 
 # local env files
 service-account.json
+
+node_modules
+.firebase
+.next
+.DS_Store
+.env
+.env.local
