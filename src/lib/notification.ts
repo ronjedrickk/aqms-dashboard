@@ -1,5 +1,5 @@
 // src/lib/notifications.ts
-import { adminMessaging, adminDb } from "./firebase-admin";
+import { adminMessaging, adminDB } from "./firebase-admin";
 
 /**
  * Send a push notification to multiple FCM tokens.
@@ -36,7 +36,7 @@ export async function sendNotificationToTokens(
 
   if (tokensToRemove.length) {
     for (const token of tokensToRemove) {
-      await adminDb.collection("push_token").doc(token).delete();
+      await adminDB.collection("push_token").doc(token).delete();
     }
   }
 
