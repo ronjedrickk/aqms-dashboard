@@ -106,12 +106,12 @@ export function SensorCard({
 
   return (
     <div
-      className={`rounded-3xl shadow-lg p-6 flex flex-col gap-4 bg-auto border-4 border-[#E5E7EB] ${severityClass}`}
+      className={`rounded-3xl shadow-lg p-6 flex flex-col gap-4 border-[rgba(56,189,248,0.18)] border-2 ${severityClass}`}
     >
       <div className="rounded-lg p-4 flex items-center gap-4">
         <div className="text-4xl">{icon}</div>
         <div>
-          <h2 className="text-2xl font-semibold text-black">{title}</h2>
+          <h2 className="text-2xl font-semibold text-white">{title}</h2>
           <p className="text-3xl mt-2 font-bold">
             <span className={textColor}>{value}</span>
           </p>

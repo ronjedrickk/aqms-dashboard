@@ -325,125 +325,195 @@ export default function AdminNotifPage() {
   const latest = rows.length > 0 ? rows[0] : null;
 
   return (
-    <div className="bg-blue-100 font-sans min-h-screen">
-      {/* Header */}
-      <div className="p-5">
-        <header className="mt-3.5 shadow-xl bg-white rounded-xl">
-          <div className="flex justify-around p-2 gap-3 items-center">
-            {/* Back */}
-            <Link
-              href="/admin"
-              className="text-xl font-medium bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600 transition flex items-center"
+    <div className="flex min-h-screen bg-[#0a1f44] text-white font-['Inter']">
+      {/* Sidebar */}
+      <aside className="w-60 bg-[#0b1a33] p-5 flex flex-col gap-4 sticky top-0 h-screen">
+        <div className="flex items-center gap-2.5">
+          <div className="w-9 h-9 rounded-[10px] bg-[#071327] grid place-items-center text-white font-extrabold">
+            A
+          </div>
+          <h2 className="text-lg text-[#38bdf8] m-0">Adamson University</h2>
+        </div>
+        <nav className="flex flex-col mt-4">
+          <Link
+            href="/admin"
+            className="flex items-center gap-2.5 py-2.5 px-3 rounded-lg mb-1.5 transition-all text-[#e4e8f0] hover:bg-[#1d3557] hover:text-[#38bdf8]"
+          >
+            <svg
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              className="w-4 h-4 opacity-90 flex-shrink-0"
             >
-              <span className="mr-2">
-                <FaArrowLeft />
-              </span>
-              Back
-            </Link>
+              <rect x="3" y="3" width="7" height="7" rx="1.5"></rect>
+              <rect x="14" y="3" width="7" height="7" rx="1.5"></rect>
+              <rect x="3" y="14" width="7" height="7" rx="1.5"></rect>
+              <rect x="14" y="14" width="7" height="7" rx="1.5"></rect>
+            </svg>
+            Dashboard
+          </Link>
+          <Link
+            href="/admin/aqi"
+            className="flex items-center gap-2.5 py-2.5 px-3 rounded-lg mb-1.5 transition-all text-[#e4e8f0] hover:bg-[#1d3557] hover:text-[#38bdf8]"
+          >
+            <svg
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="#ffeb3b"
+              strokeWidth="2"
+              className="w-4 h-4 opacity-90 flex-shrink-0"
+            >
+              <path d="M3 15a4 4 0 014-4h1a5 5 0 119 0h1a4 4 0 110 8H7a4 4 0 01-4-4z" />
+            </svg>
+            Air Quality
+          </Link>
+          <Link
+            href="/admin/uv"
+            className="flex items-center gap-2.5 py-2.5 px-3 rounded-lg mb-1.5 transition-all text-[#e4e8f0] hover:bg-[#1d3557] hover:text-[#38bdf8]"
+          >
+            <svg
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="#a78bfa"
+              strokeWidth="2"
+              className="w-4 h-4 opacity-90 flex-shrink-0"
+            >
+              <circle cx="12" cy="12" r="5" />
+              <path d="M12 1v2m0 18v2m11-11h-2M3 12H1m16.95-6.95l-1.41 1.41M6.46 17.54l-1.41 1.41M17.54 17.54l1.41 1.41M6.46 6.46L5.05 5.05" />
+            </svg>
+            UV Intensity
+          </Link>
+          <Link
+            href="/admin/heat"
+            className="flex items-center gap-2.5 py-2.5 px-3 rounded-lg mb-1.5 transition-all text-[#e4e8f0] hover:bg-[#1d3557] hover:text-[#38bdf8]"
+          >
+            <svg
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="#ff9800"
+              strokeWidth="2"
+              className="w-4 h-4 opacity-90 flex-shrink-0"
+            >
+              <path d="M14 14.76V5a2 2 0 10-4 0v9.76a4 4 0 104 0z" />
+            </svg>
+            Heat Index
+          </Link>
+          <Link
+            href="/admin/notif"
+            className="flex items-center gap-2.5 py-2.5 px-3 rounded-lg mb-1.5 transition-all bg-[#1d3557] text-[#38bdf8]"
+          >
+            <svg
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="#9fb8d1"
+              strokeWidth="2"
+              className="w-4 h-4 opacity-90 flex-shrink-0"
+            >
+              <path d="M7 3h7l5 5v13a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2z" />
+              <path d="M14 3v6h6" />
+            </svg>
+            Notifications
+          </Link>
+        </nav>
+        <div className="flex-1"></div>
+        <div className="text-xs text-[#6ea8d9]">© Adamson University 2025</div>
+      </aside>
 
-            {/* Clock */}
-            <div className="ml-2 my-2 self-center">
-              <div className="flex items-center gap-2">
-                <FaClock className="text-2xl text-[#FFB703]" />
-                <div className="bg-[#0067B1] rounded-lg shadow text-center px-4 py-2 border border-[#A7A9AC]">
-                  <p className="text-lg font-medium text-white">
-                    Adamson University
-                  </p>
-                  <div className="text-2xl font-bold text-white">{clock}</div>
+      {/* Main content */}
+      <div className="flex-1">
+        <div className="p-5">
+          <header className="mt-3.5 shadow-xl rounded-xl">
+            <div className="flex justify-around p-2 gap-3 items-center">
+              {/* Clock */}
+              <div className="ml-2 my-2 self-center">
+                <div className="flex items-center gap-2">
+                  <FaClock className="text-2xl text-[#FFB703]" />
+                  <div className="flex items-center gap-2 text-[#e4e8f0] bg-[#071327] rounded-xl px-4 py-2 shadow max-w-50">
+                    <div className="text-lg font-medium text-white">
+                      Adamson University
+                    </div>
+                    <div className="text-2xl font-bold text-white">{clock}</div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Nav */}
+
+              {/* Filters */}
+              <div className="flex items-end gap-4 text-black">
+                <div>
+                  <label className="block text-sm font-medium text-white">
+                    Select Date
+                  </label>
+                  <input
+                    type="date"
+                    value={selectedDate}
+                    onChange={(e) => setSelectedDate(e.target.value)}
+                    className="border border-gray-300 rounded-md px-3 py-1"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-white">
+                    Location
+                  </label>
+                  <select
+                    value={selectedLocation}
+                    onChange={(e) =>
+                      setSelectedLocation(e.target.value as LocationKey)
+                    }
+                    className="border border-gray-300 rounded-md px-3 py-1"
+                  >
+                    {locationKeys.map((k) => (
+                      <option key={k} value={k}>
+                        {locationDetails[k].title}
+                      </option>
+                    ))}
+                  </select>
                 </div>
               </div>
             </div>
-
-            {/* Nav */}
-            <div className="flex flex-row text-black">
-              <div className="self-center">
-                <nav className="mt-3 text-center space-x-8 text-2xl">
-                  <Link href="/admin/aqi">Air Quality</Link>
-                  <Link href="/admin/uv">UV Intensity</Link>
-                  <Link href="/admin/heat">Heat Index</Link>
-                  <Link
-                    href="/admin/notif"
-                    className="underline underline-offset-8"
-                  >
-                    Notifications
-                  </Link>
-                </nav>
-              </div>
-            </div>
-
-            {/* Filters */}
-            <div className="flex items-end gap-4 text-black">
-              <div>
-                <label className="block text-sm font-medium text-gray-700">
-                  Select Date
-                </label>
-                <input
-                  type="date"
-                  value={selectedDate}
-                  onChange={(e) => setSelectedDate(e.target.value)}
-                  className="border border-gray-300 rounded-md px-3 py-1"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700">
-                  Location
-                </label>
-                <select
-                  value={selectedLocation}
-                  onChange={(e) =>
-                    setSelectedLocation(e.target.value as LocationKey)
-                  }
-                  className="border border-gray-300 rounded-md px-3 py-1"
-                >
-                  {locationKeys.map((k) => (
-                    <option key={k} value={k}>
-                      {locationDetails[k].title}
-                    </option>
-                  ))}
-                </select>
-              </div>
-            </div>
-          </div>
-        </header>
-      </div>
-
-      {/* Recommendation Alert */}
-      <div className="mx-5">
-        <div
-          className={`${getBgColorFromSeverity(
-            severity
-          )} text-white font-bold px-6 py-3 rounded-xl shadow-lg flex items-center gap-2`}
-        >
-          <FaBullhorn />
-          <span>{body || "Loading recommendation..."}</span>
+          </header>
         </div>
-      </div>
 
-      {/* 3 Cards + Notification */}
-      <div className="grid gap-6 md:grid-cols-4 mx-5 mt-6">
-        {/* AQI */}
-        <Metric
-          label="Air Quality"
-          value={latest ? `${latest.aqi.toFixed(1)} AQI` : "-"}
-          color={getSeverityColor(aqiSeverity)}
-        />
+        {/* Recommendation Alert */}
+        <div className="mx-5">
+          <div
+            className={`${getBgColorFromSeverity(
+              severity
+            )}  font-bold px-6 py-3 rounded-xl shadow-lg flex items-center gap-2`}
+          >
+            <FaBullhorn />
+            <span>{body || "Loading recommendation..."}</span>
+          </div>
+        </div>
 
-        {/* UV */}
-        <Metric
-          label="UV Intensity"
-          value={latest ? `${latest.uv.toFixed(1)} UV` : "-"}
-          color={getSeverityColor(uvSeverity)}
-        />
+        {/* 3 Cards + Notification */}
+        <div className="grid gap-6 md:grid-cols-3 mx-5 mt-6">
+          {/* AQI */}
+          <Metric
+            label="Air Quality"
+            value={latest ? `${latest.aqi.toFixed(1)} AQI` : "-"}
+            color={getSeverityColor(aqiSeverity)}
+          />
 
-        {/* Heat */}
-        <Metric
-          label="Heat Index"
-          value={latest ? `${latest.heat.toFixed(1)} °C` : "-"}
-          color={getSeverityColor(heatSeverity)}
-        />
+          {/* UV */}
+          <Metric
+            label="UV Intensity"
+            value={latest ? `${latest.uv.toFixed(1)} UV` : "-"}
+            color={getSeverityColor(uvSeverity)}
+          />
+
+          {/* Heat */}
+          <Metric
+            label="Heat Index"
+            value={latest ? `${latest.heat.toFixed(1)} °C` : "-"}
+            color={getSeverityColor(heatSeverity)}
+          />
+        </div>
 
         {/* Notification Composer */}
-        <section className="bg-white rounded-2xl shadow-xl border border-[#A7A9AC] overflow-hidden md:col-span-1">
+        <section className=" bg-white rounded-2xl shadow-xl border m-10   border-[#A7A9AC] overflow-hidden md:col-span-1">
           <div className="px-5 py-4 border-b border-[#A7A9AC] bg-blue-50">
             <h2 className="text-lg font-semibold text-black">
               Compose Notification
@@ -461,8 +531,8 @@ export default function AdminNotifPage() {
               placeholder="Notification Body"
               value={body}
               onChange={(e) => setBody(e.target.value)}
-              className="text-black w-full bg-white border border-[#A7A9AC] rounded-lg px-4 py-2 shadow-sm focus:outline-none focus:ring-2 focus:ring-[#0067B1]"
-              rows={4}
+              className="text-black w-full h-auto bg-white border border-[#A7A9AC] rounded-lg px-4 py-2 shadow-sm focus:outline-none focus:ring-2 focus:ring-[#0067B1]"
+              rows={8}
             />
             <div className="flex items-center justify-end">
               <button
@@ -476,17 +546,17 @@ export default function AdminNotifPage() {
             </div>
           </div>
         </section>
+
+        {/* Result */}
+        {result && (
+          <div className="m-10 px-4 py-3 rounded-2xl border shadow-xl bg-gray-50 border-[#A7A9AC] text-gray-800">
+            {result}
+          </div>
+        )}
+
+        {/* Use loading state in UI */}
+        {loading && <div className="text-center py-4">Loading...</div>}
       </div>
-
-      {/* Result */}
-      {result && (
-        <div className="mx-5 mt-4 px-4 py-3 rounded-2xl border shadow-xl bg-gray-50 border-[#A7A9AC] text-gray-800">
-          {result}
-        </div>
-      )}
-
-      {/* Use loading state in UI */}
-      {loading && <div className="text-center py-4">Loading...</div>}
     </div>
   );
 }

@@ -79,8 +79,8 @@ export function Combined({ data }: { data: ChartDataPoint[] }) {
   const latestHeat = lastPoint?.heat ?? null;
 
   return (
-    <div className="bg-auto rounded-3xl shadow-xl border-4 border-[#E5E7EB] ">
-      <div className="w-full h-[300px] border rounded-2xl overflow-hidden p-4">
+    <div className="bg-auto rounded-3xl shadow-xl  ">
+      <div className="w-full h-[300px] border-[rgba(56,189,248,0.18)] border-2 rounded-2xl overflow-hidden p-4">
         <div className="w-full overflow-x-auto lg:overflow-x-hidden">
           <div className="min-w-[900px] lg:min-w-0">
             <ResponsiveContainer width="100%" height={280}>
@@ -106,7 +106,7 @@ export function Combined({ data }: { data: ChartDataPoint[] }) {
                 <XAxis
                   dataKey="timeLabel"
                   stroke="#273F4F"
-                  tick={{ fill: "#273F4F", dy: 10, dx: 4 }}
+                  tick={{ fill: "#ffffff", dy: 10, dx: 4 }}
                   interval={0}
                   textAnchor="middle"
                   axisLine={false}
@@ -115,7 +115,7 @@ export function Combined({ data }: { data: ChartDataPoint[] }) {
                 <YAxis
                   domain={dynamicDomain}
                   stroke="#273F4F"
-                  tick={{ fill: "#273F4F", dx: -10 }}
+                  tick={{ fill: "#ffffff", dx: -10 }}
                   axisLine={false}
                   tickLine={false}
                 />
@@ -161,7 +161,7 @@ export function Combined({ data }: { data: ChartDataPoint[] }) {
                     label={{
                       value: (latestAqi as number).toFixed(1),
                       position: "top",
-                      fill: "#273F4F",
+                      fill: "#ffffff",
                       fontSize: 20,
                       fontWeight: "semibold",
                       offset: 6,
@@ -179,7 +179,7 @@ export function Combined({ data }: { data: ChartDataPoint[] }) {
                     label={{
                       value: (latestUv as number).toFixed(1),
                       position: "top",
-                      fill: "#273F4F",
+                      fill: "#ffffff",
                       fontSize: 20,
                       offset: 6,
                     }}
@@ -196,7 +196,7 @@ export function Combined({ data }: { data: ChartDataPoint[] }) {
                     label={{
                       value: (latestHeat as number).toFixed(1),
                       position: "top",
-                      fill: "#273F4F",
+                      fill: "#ffffff",
                       fontSize: 20,
                       offset: 6,
                     }}

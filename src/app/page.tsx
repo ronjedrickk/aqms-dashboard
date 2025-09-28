@@ -205,10 +205,10 @@ export default function Page() {
   }, [latest]);
   return (
     <main
-      className={`min-h-screen text-white font-['Inter'] p-2 transition-colors duration-500 bg-blue-300`}
+      className={`min-h-screen text-white font-['Inter'] p-2 transition-colors duration-500 bg-[#0a1f44]`}
     >
       {/* Header */}
-      <header className="mt-4 border-8 border-[#E8F9FF] drop-shadow-2xl p-4 bg-[#EFEEEA] text-white rounded-lg flex flex-col md:flex-row justify-between items-center gap-6">
+      <header className="mt-2  drop-shadow-2xl p-2  text-white rounded-lg flex flex-col md:flex-row justify-between items-center gap-6">
         {/* Clock */}
         <div className="flex items-center gap-2">
           <FaClock className="text-2xl text-[#FFB703]" />
@@ -240,7 +240,7 @@ export default function Page() {
               <span className="text-2xl">🔔</span>
               <div className="text-black">
                 <p className="font-semibold">Get Air Quality Alerts</p>
-                <p className="text-sm text-gray-600">
+                <p className="text-sm text-white">
                   Stay informed about significant changes in air quality, UV,
                   and heat levels.
                 </p>
@@ -330,7 +330,7 @@ export default function Page() {
         {/* Charts + Map */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 ">
           <div className="col-span-1 flex flex-col justify-center items-center">
-            <h3 className="text-xl font-bold text-black mb-3">
+            <h3 className="text-xl font-bold text-white mb-3">
               Location:{" "}
               <span
                 className={`underline underline-offset-8 ${locationDetails[activeLocation].colorClass} ${locationDetails[activeLocation].fontSize}`}
@@ -343,11 +343,11 @@ export default function Page() {
             />
           </div>
 
-          <div className="col-span-1 lg:col-span-2 p-2">
-            <h3 className="text-xl font-semibold text-black mb-2">
+          <div className="col-span-1 lg:col-span-2 p-2 text-center ">
+            <h3 className="text-xl font-semibold text-white mb-2">
               Combined Analysis <br />
               {latest && (
-                <span className="ml-2 text-xl font-semibold text-gray-700">
+                <span className="ml-2 text-xl font-semibold text-white">
                   Now:{" "}
                   <span
                     className={` font-bold ${getSeverityColor(aqiSeverity)}`}
@@ -365,9 +365,6 @@ export default function Page() {
                     )}`}
                   >
                     {latest.heat.toFixed(1)}°C
-                  </span>
-                  <span className="ml-2 font-bold text-gray-600">
-                    {now.toLocaleTimeString()}
                   </span>
                 </span>
               )}

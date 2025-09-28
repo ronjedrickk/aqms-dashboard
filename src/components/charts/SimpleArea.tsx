@@ -77,7 +77,7 @@ export function SimpleArea({
   const latestValue = lastPoint?.[dataKey] as number | undefined;
 
   return (
-    <div className="bg-auto rounded-3xl shadow-xl">
+    <div className="bg-auto rounded-3xl shadow-xl ">
       <div className="w-full h-[250px] border rounded-2xl overflow-hidden">
         <div className="w-full overflow-x-auto lg:overflow-x-hidden">
           <div className="min-w-[900px] lg:min-w-0">
@@ -96,7 +96,7 @@ export function SimpleArea({
                 <XAxis
                   dataKey="timeLabelFull"
                   stroke="#273F4F"
-                  tick={{ fill: "#273F4F", dy: 10 }}
+                  tick={{ fill: "#ffffff", dy: 10 }}
                   interval={0}
                   textAnchor="middle"
                   axisLine={false}
@@ -106,7 +106,7 @@ export function SimpleArea({
                 <YAxis
                   domain={dynamicDomain}
                   stroke="#273F4F"
-                  tick={{ fill: "#273F4F", dx: -10 }}
+                  tick={{ fill: "#ffffff", dx: -10 }}
                   axisLine={false}
                   tickLine={false}
                 />
@@ -148,7 +148,7 @@ export function SimpleArea({
                       label={{
                         value: latestValue.toFixed(decimals),
                         position: "top",
-                        fill: "#273F4F",
+                        fill: "#ffffff",
                         fontSize: 20,
                         offset: 8,
                       }}
