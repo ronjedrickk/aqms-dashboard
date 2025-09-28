@@ -234,13 +234,13 @@ export default function Page() {
 
       {/* Notification Prompt */}
       {showPrompt && permission === "default" && (
-        <div className="my-4 p-4 bg-white rounded-lg shadow-lg">
+        <div className="my-4 p-4 rounded-lg shadow-lg">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
               <span className="text-2xl">🔔</span>
-              <div className="text-black">
+              <div className="text-white">
                 <p className="font-semibold">Get Air Quality Alerts</p>
-                <p className="text-sm text-white">
+                <p className="text-sm text-">
                   Stay informed about significant changes in air quality, UV,
                   and heat levels.
                 </p>
@@ -249,7 +249,7 @@ export default function Page() {
             <div className="flex gap-2">
               <button
                 onClick={() => setShowPrompt(false)}
-                className="px-4 py-2 text-gray-600 hover:bg-gray-100 rounded"
+                className="px-4 py-2 text-white hover:bg-gray-100 rounded hover:text-black"
               >
                 Not Now
               </button>
