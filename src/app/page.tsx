@@ -131,6 +131,12 @@ export default function Page() {
     "SV Entrance / Parking Lot"
   );
 
+  // Add this state to detect client-side mount
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
   // 🔔 Notification hook
   const { permission, requestPermission } = useNotifications();
   const [showPrompt, setShowPrompt] = useState(true);
@@ -214,7 +220,9 @@ export default function Page() {
           <FaClock className="text-2xl text-[#FFB703]" />
           <div className="bg-[#0067B1] rounded-lg shadow text-center px-4 py-2 border border-[#A7A9AC]">
             <p className="text-lg font-medium">Adamson University</p>
-            <div className="text-2xl font-bold">{now.toLocaleTimeString()}</div>
+            <div className="text-2xl font-bold">
+              {mounted ? now.toLocaleTimeString() : "--:--:--"}
+            </div>
           </div>
         </div>
 

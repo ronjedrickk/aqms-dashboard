@@ -88,30 +88,42 @@ export function useSensorData(
       (snap) => {
         const mapped: SensorRow[] = snap.docs.map(
           (doc: QueryDocumentSnapshot<DocumentData>) => {
-            const d = doc.data() as SensorDocument;
-            const date = d?.created_at?.toDate
-              ? d.created_at.toDate()
-              : new Date();
+            try {
+              const d = doc.data() as SensorDocument;
+              const date = d?.created_at?.toDate
+                ? d.created_at.toDate()
+                : new Date();
 
-            const temperature =
-              d?.temperature != null
-                ? parseFloat(d.temperature.toString())
-                : null;
-            const humidity =
-              d?.humidity != null ? parseFloat(d.humidity.toString()) : null;
+              const temperature =
+                d?.temperature != null
+                  ? parseFloat(d.temperature.toString())
+                  : null;
+              const humidity =
+                d?.humidity != null ? parseFloat(d.humidity.toString()) : null;
 
-            const heat =
-              d?.heat_index != null
-                ? parseFloat(d.heat_index.toString())
-                : heatIndexCelsius(temperature, humidity) ?? temperature ?? 0;
+              const heat =
+                d?.heat_index != null
+                  ? parseFloat(d.heat_index.toString())
+                  : heatIndexCelsius(temperature, humidity) ?? temperature ?? 0;
 
-            return {
-              timeLabel: date.toLocaleTimeString(),
-              aqi: d?.pm2_5 != null ? parseFloat(d.pm2_5.toString()) : 0,
-              uv: d?.uv_index != null ? parseFloat(d.uv_index.toString()) : 0,
-              heat: typeof heat === "number" && !Number.isNaN(heat) ? heat : 0,
-              temperature: temperature ?? undefined,
-            };
+              return {
+                timeLabel: date.toISOString().slice(11, 19), // "HH:MM:SS"
+                aqi: d?.pm2_5 != null ? parseFloat(d.pm2_5.toString()) : 0,
+                uv: d?.uv_index != null ? parseFloat(d.uv_index.toString()) : 0,
+                heat:
+                  typeof heat === "number" && !Number.isNaN(heat) ? heat : 0,
+                temperature: temperature ?? undefined,
+              };
+            } catch (err) {
+              console.error("Sensor data parse error:", err, doc.data());
+              return {
+                timeLabel: "Invalid",
+                aqi: 0,
+                uv: 0,
+                heat: 0,
+                temperature: undefined,
+              };
+            }
           }
         );
 
