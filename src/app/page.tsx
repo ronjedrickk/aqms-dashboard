@@ -127,15 +127,15 @@ function getBgColorFromSeverity(severity: string): string {
 
 export default function Page() {
   const now = useClock();
-  const [activeLocation, setActiveLocation] = useState<LocationKey>(
-    "SV Entrance / Parking Lot"
-  );
-
-  // Add this state to detect client-side mount
   const [mounted, setMounted] = useState(false);
+
   useEffect(() => {
     setMounted(true);
   }, []);
+
+  const [activeLocation, setActiveLocation] = useState<LocationKey>(
+    "SV Entrance / Parking Lot"
+  );
 
   // 🔔 Notification hook
   const { permission, requestPermission } = useNotifications();
@@ -221,7 +221,15 @@ export default function Page() {
           <div className="bg-[#0067B1] rounded-lg shadow text-center px-4 py-2 border border-[#A7A9AC]">
             <p className="text-lg font-medium">Adamson University</p>
             <div className="text-2xl font-bold">
-              {mounted ? now.toLocaleTimeString() : "--:--:--"}
+              {now
+                ? now.toLocaleTimeString("en-PH", {
+                    timeZone: "Asia/Manila",
+                    hour12: true,
+                    hour: "2-digit",
+                    minute: "2-digit",
+                    second: "2-digit",
+                  })
+                : "--:--:--"}
             </div>
           </div>
         </div>

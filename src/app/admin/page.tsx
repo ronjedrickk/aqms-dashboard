@@ -132,6 +132,12 @@ function getBgColorFromSeverity(severity: string): string {
 
 export default function AdminPage() {
   const now = useClock();
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
   const [activeLocation, setActiveLocation] = useState<LocationKey>(
     "SV Entrance / Parking Lot"
   );
@@ -388,7 +394,7 @@ export default function AdminPage() {
             <div className="flex items-center gap-2 text-[#e4e8f0] bg-[#071327] rounded-xl px-4 py-2 shadow max-w-50">
               <FaClock className="text-[#38bdf8]" />
               <span className="text-2xl font-medium">
-                {now.toLocaleTimeString()}
+                {now ? now.toLocaleTimeString() : "--:--:--"}
               </span>
             </div>
             <div

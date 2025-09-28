@@ -27,7 +27,7 @@ export type SensorRow = {
   aqi: number; // pm2_5
   uv: number; // uv_index
   heat: number; // heat index (computed or fallback)
-  temperature?: number; // Add temperature field
+  temperature?: number;
 };
 
 export type LocationKey =
@@ -94,6 +94,15 @@ export function useSensorData(
                 ? d.created_at.toDate()
                 : new Date();
 
+              // ✅ Always format to Asia/Manila time
+              const timeLabel = date.toLocaleTimeString("en-PH", {
+                timeZone: "Asia/Manila",
+                hour: "2-digit",
+                minute: "2-digit",
+                second: "2-digit",
+                hour12: true,
+              });
+
               const temperature =
                 d?.temperature != null
                   ? parseFloat(d.temperature.toString())
@@ -107,7 +116,7 @@ export function useSensorData(
                   : heatIndexCelsius(temperature, humidity) ?? temperature ?? 0;
 
               return {
-                timeLabel: date.toISOString().slice(11, 19), // "HH:MM:SS"
+                timeLabel,
                 aqi: d?.pm2_5 != null ? parseFloat(d.pm2_5.toString()) : 0,
                 uv: d?.uv_index != null ? parseFloat(d.uv_index.toString()) : 0,
                 heat:
