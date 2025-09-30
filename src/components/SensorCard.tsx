@@ -17,8 +17,8 @@ export function SensorCard({
 }: {
   title: string;
   value: string;
-  icon: string;
-  iconsapiValue?: string;
+  icon: React.ReactNode;
+  iconsapiValue?: React.ReactNode;
   severity: SeverityLevel; // Keep severity as it's used in parent components
   apiValue?: string;
   location?: string;
@@ -106,13 +106,15 @@ export function SensorCard({
 
   return (
     <div
-      className={`rounded-3xl shadow-lg p-6 flex flex-col gap-4 border-[rgba(56,189,248,0.18)] border-2 ${severityClass}`}
+      className={`rounded-3xl shadow-lg p-6 flex flex-col gap-2 sm:gap-4 border-[rgba(56,189,248,0.18)] border-2 ${severityClass}`}
     >
-      <div className="rounded-lg p-4 flex items-center gap-4">
-        <div className="text-4xl">{icon}</div>
+      <div className="rounded-lg p-2 sm:p-4 flex items-center gap-4">
+        <div className="sm:text-8xl text-xl">{icon}</div>
         <div>
-          <h2 className="text-2xl font-semibold text-white">{title}</h2>
-          <p className="text-3xl mt-2 font-bold">
+          <h2 className="text-lg sm:text-2xl font-semibold text-white">
+            {title}
+          </h2>
+          <p className="text-xl sm:text-2xl mt-2 font-bold">
             <span className={textColor}>{value}</span>
           </p>
           <div>
@@ -124,7 +126,9 @@ export function SensorCard({
           {source && <p className="text-sm text-gray-400">Source: {source}</p>}
           <div className="flex items-center gap-2 justify-end">
             <p className="text-xl">{iconsapiValue}</p>
-            {apiValue && <p className="text-xl text-gray-500">{apiValue}</p>}
+            {apiValue && (
+              <p className="text-lg sm:text-xl text-gray-500">{apiValue}</p>
+            )}
           </div>
         </div>
       </div>

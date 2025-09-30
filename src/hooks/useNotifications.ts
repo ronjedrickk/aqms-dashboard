@@ -21,6 +21,15 @@ export function useNotifications() {
       setLoading(true);
       setError(null);
 
+      if (
+        typeof window === "undefined" ||
+        typeof Notification === "undefined"
+      ) {
+        setError("Notifications are not supported in this environment");
+        return;
+        false;
+      }
+
       const status = await Notification.requestPermission();
       setPermission(status);
 
@@ -63,7 +72,9 @@ export function useNotifications() {
   };
 
   useEffect(() => {
-    setPermission(Notification.permission);
+    if (typeof Notification !== "undefined") {
+      setPermission(Notification.permission);
+    }
   }, []);
 
   return { permission, loading, error, requestPermission };

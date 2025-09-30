@@ -158,6 +158,11 @@ export default function AdminNotifPage() {
 
   // Notification composer
   const [title, setTitle] = useState("Health & Safety Alert");
+
+  useEffect(() => {
+    setTitle(`Health & Safety Alert - Location: ${selectedLocation}`);
+  }, [selectedLocation]);
+
   const [sending, setSending] = useState(false);
   const [result, setResult] = useState<string | null>(null);
 
@@ -222,6 +227,13 @@ export default function AdminNotifPage() {
 
   // Compute recommendation
   useEffect(() => {
+    // 🔹 Emoji icons for notification messages
+    const metricIcons: Record<string, string> = {
+      AQI: "🌫️",
+      UV: "🔆",
+      Heat: "🌡️",
+    };
+
     if (!rows.length) return;
     const latest = rows[0];
 
@@ -246,7 +258,7 @@ export default function AdminNotifPage() {
             if (cat === "Heat") displayValue += " °C";
 
             messages.push(
-              `Location: ${selectedLocation} \n${cat}: ${recommendation} (Current: ${displayValue}, )`
+              `${metricIcons[cat]} ${cat}: ${recommendation} (Current: ${displayValue}, )`
             );
             if (cat === "AQI") aqiSev = severity.toLowerCase();
             if (cat === "UV") uvSev = severity.toLowerCase();
@@ -490,25 +502,56 @@ export default function AdminNotifPage() {
 
         {/* 3 Cards + Notification */}
         <div className="grid gap-6 md:grid-cols-3 mx-5 mt-6">
-          {/* AQI */}
           <Metric
             label="Air Quality"
             value={latest ? `${latest.aqi.toFixed(1)} AQI` : "-"}
             color={getSeverityColor(aqiSeverity)}
+            icon={
+              <svg
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="#ffeb3b"
+                strokeWidth="2"
+                className="w-5 h-5 opacity-90 flex-shrink-0"
+              >
+                <path d="M3 15a4 4 0 014-4h1a5 5 0 119 0h1a4 4 0 110 8H7a4 4 0 01-4-4z" />
+              </svg>
+            }
           />
 
-          {/* UV */}
           <Metric
             label="UV Intensity"
             value={latest ? `${latest.uv.toFixed(1)} UV` : "-"}
             color={getSeverityColor(uvSeverity)}
+            icon={
+              <svg
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="#a78bfa"
+                strokeWidth="2"
+                className="w-5 h-5 opacity-90 flex-shrink-0"
+              >
+                <circle cx="12" cy="12" r="5" />
+                <path d="M12 1v2m0 18v2m11-11h-2M3 12H1m16.95-6.95l-1.41 1.41M6.46 17.54l-1.41 1.41M17.54 17.54l1.41 1.41M6.46 6.46L5.05 5.05" />
+              </svg>
+            }
           />
 
-          {/* Heat */}
           <Metric
             label="Heat Index"
             value={latest ? `${latest.heat.toFixed(1)} °C` : "-"}
             color={getSeverityColor(heatSeverity)}
+            icon={
+              <svg
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="#ff9800"
+                strokeWidth="2"
+                className="w-5 h-5 opacity-90 flex-shrink-0"
+              >
+                <path d="M14 14.76V5a2 2 0 10-4 0v9.76a4 4 0 104 0z" />
+              </svg>
+            }
           />
         </div>
 
@@ -565,15 +608,20 @@ function Metric({
   label,
   value,
   color,
+  icon,
 }: {
   label: string;
   value: string;
   color: string;
+  icon?: React.ReactNode;
 }) {
   const displayValue = value === "-" || !value ? "No data" : value;
   return (
     <div className="rounded-xl bg-white px-4 py-5 border border-[#A7A9AC] shadow-sm flex flex-col items-center justify-center">
-      <div className="text-md font-medium text-gray-700">{label}</div>
+      <div className="flex items-center gap-2 text-md font-medium text-gray-700">
+        {icon} {/* 🔹 NEW */}
+        {label}
+      </div>
       <div className={`text-2xl font-bold ${color}`}>{displayValue}</div>
     </div>
   );
