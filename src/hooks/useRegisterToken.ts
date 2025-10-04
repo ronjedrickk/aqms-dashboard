@@ -31,7 +31,7 @@ export function useRegisterToken() {
 
       setToken(fcmToken);
 
-      // Call your Cloud Function (rewritten as /api/register-token)
+      // Call your Cloud Function /api/register-token
       await fetch("/api/register-token", {
         method: "POST",
         headers: { "Content-Type": "application/json" },

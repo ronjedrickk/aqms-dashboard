@@ -12,7 +12,7 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // ✅ Since token is the document ID
+    // FCM token is the document ID
     const snap = await adminDB.collection("push_token").get();
     const tokens = snap.docs.map((d) => d.id).filter(Boolean);
 
@@ -22,7 +22,7 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ message: "No tokens found" });
     }
 
-    // ✅ Send notification with same title & body as admin input
+    // Send notification with curent
     const response = await adminMessaging.sendEachForMulticast({
       tokens,
       notification: { title, body },

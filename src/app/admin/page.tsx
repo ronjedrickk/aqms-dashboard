@@ -426,10 +426,21 @@ export default function AdminPage() {
         <section className="my-6 px-5">
           {latest && (
             <div className="grid grid-cols-1 md:grid-cols-3 gap-3 mb-6">
+              {/* AQI Card */}
               <SensorCard
                 title="Air Quality"
                 value={`${latest.aqi} AQI`}
-                icon="🌫️"
+                icon={
+                  <svg
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="#ffeb3b"
+                    strokeWidth="2"
+                    className="h-9 w-9 sm:w-12 sm:h-15 opacity-90 flex-shrink-0"
+                  >
+                    <path d="M3 15a4 4 0 014-4h1a5 5 0 119 0h1a4 4 0 110 8H7a4 4 0 01-4-4z" />
+                  </svg>
+                }
                 severity={aqiSeverity as SeverityLevel}
                 apiValue={googleData ? `${googleData.aqi} AQI` : "Loading..."}
                 location={googleData?.locationName || "Unknown location"}
@@ -443,11 +454,22 @@ export default function AdminPage() {
                   fillId="aqi-fill"
                 />
               </SensorCard>
-
+              {/* UV Card */}
               <SensorCard
                 title="UV Intensity"
                 value={`${latest.uv} UV`}
-                icon="☀️"
+                icon={
+                  <svg
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="#a78bfa"
+                    strokeWidth="2"
+                    className="w-9 h-8 sm:w-12 sm:h-15 opacity-90 flex-shrink-0"
+                  >
+                    <circle cx="12" cy="12" r="5" />
+                    <path d="M12 1v2m0 18v2m11-11h-2M3 12H1m16.95-6.95l-1.41 1.41M6.46 17.54l-1.41 1.41M17.54 17.54l1.41 1.41M6.46 6.46L5.05 5.05" />
+                  </svg>
+                }
                 severity={uvSeverity as SeverityLevel}
                 apiValue={googleData ? `${googleData.uv} UV` : "Loading..."}
                 location={googleData?.uvLocation || "Unknown location"}
@@ -460,11 +482,21 @@ export default function AdminPage() {
                   fillId="uv-fill"
                 />
               </SensorCard>
-
+              {/* Heat Card */}
               <SensorCard
                 title="Heat Index"
                 value={latest.heat ? `${latest.heat.toFixed(1)} °C` : "—"}
-                icon="🌡️"
+                icon={
+                  <svg
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="#ff9800"
+                    strokeWidth="2"
+                    className="w-9 h-8 sm:w-12 sm:h-15 opacity-90 flex-shrink-0"
+                  >
+                    <path d="M14 14.76V5a2 2 0 10-4 0v9.76a4 4 0 104 0z" />
+                  </svg>
+                }
                 severity={heatSeverity as SeverityLevel}
                 apiValue={googleData ? `${googleData.heat} °C` : "Loading..."}
                 location={googleData?.heatLocation || "Unknown location"}

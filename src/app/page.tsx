@@ -137,24 +137,24 @@ export default function Page() {
     "SV Entrance / Parking Lot"
   );
 
-  // 🔔 Notification hook
+  //  Notification hook
   const { permission, requestPermission } = useNotifications();
   const [showPrompt, setShowPrompt] = useState(true);
 
-  // ✅ unified hook: latest + rows
+  // unified hook: latest + rows
   const { latest, rows } = useSensorData(activeLocation, 8);
 
-  // ✅ per-category recommendations
+  //  per-category recommendations
   const [aqiRec, setAqiRec] = useState("");
   const [heatRec, setHeatRec] = useState("");
   const [uvRec, setUvRec] = useState("");
 
-  // ✅ per-sensor severities
+  // per-sensor severities
   const [aqiSeverity, setAqiSeverity] = useState<SeverityLevel>("low");
   const [uvSeverity, setUvSeverity] = useState<SeverityLevel>("low");
   const [heatSeverity, setHeatSeverity] = useState<SeverityLevel>("low");
 
-  // ✅ Google API data
+  // Google API data
   const [googleData, setGoogleData] = useState<GoogleData | null>(null);
 
   useEffect(() => {
@@ -170,7 +170,7 @@ export default function Page() {
     fetchGoogle();
   }, []);
 
-  // 🔥 Get overall recommendation + per-sensor severities
+  //  Get overall recommendation + per-sensor severities
   useEffect(() => {
     if (!latest) return;
 

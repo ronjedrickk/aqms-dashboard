@@ -35,13 +35,13 @@ export async function GET() {
     const now = Date.now();
     const oneHour = 60 * 60 * 1000;
 
-    // 🛑 Use cached data if < 1 hour old
+    //  Use cached data if < 1 hour old
     if (cachedData.lastUpdated && now - cachedData.lastUpdated < oneHour) {
       console.log("⚡ Using cached data:", cachedData);
       return Response.json(cachedData);
     }
 
-    // 🌍 Step 1: IQAir API (nearest city to Manila)
+    //  Step 1: IQAir API (nearest city to Manila)
     try {
       const iqRes = await fetch(
         `http://api.airvisual.com/v2/nearest_city?lat=14.5995&lon=120.9842&key=${IQAIR_KEY}`
@@ -107,7 +107,7 @@ export async function GET() {
     }
 
     console.log("✅ Latest cached data:", cachedData);
-    return Response.json(cachedData); // ✅ Correct way in Next.js
+    return Response.json(cachedData); //  Correct way in Next.js
   } catch (err) {
     console.error("❌ API fetch error:", err);
     return Response.json(cachedData);
