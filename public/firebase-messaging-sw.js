@@ -2,10 +2,10 @@ importScripts('https://www.gstatic.com/firebasejs/9.0.0/firebase-app-compat.js')
 importScripts('https://www.gstatic.com/firebasejs/9.0.0/firebase-messaging-compat.js');
 
 firebase.initializeApp({
-  apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
-  projectId: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID,
-  messagingSenderId: process.env.NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID,
-  appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID
+  apiKey: "AIzaSyD0A5sSpOnfUkRq0nBwGKgPnTydujt2D3c",
+  projectId: "adu-aqms-28741",
+  messagingSenderId: "59449331551",
+  appId: "1:59449331551:web:4c1b01af4409e6016030ea",
 });
 
 const messaging = firebase.messaging();
