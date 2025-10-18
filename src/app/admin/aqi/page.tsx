@@ -3,7 +3,7 @@
 import React, { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { FaArrowLeft, FaClock } from "react-icons/fa";
-import { db } from "@/lib/firebase";
+import { useRouter } from "next/navigation";
 import {
   collection,
   onSnapshot,
@@ -12,7 +12,14 @@ import {
   limit,
   where,
   Timestamp,
+  getDoc,
+  doc,
+  getDocs,
 } from "firebase/firestore";
+
+// Auth + Firestore
+import { auth, db } from "@/lib/firebase";
+import { onAuthStateChanged, signOut as fbSignOut } from "firebase/auth";
 
 // Types
 export type LocationKey =
@@ -74,6 +81,26 @@ export default function AdminAQIPage() {
   const [selectedLocation, setSelectedLocation] = useState<LocationKey>(
     "SV Entrance / Parking Lot"
   );
+
+  // Auth - remove unused states
+  const router = useRouter();
+
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, async (user) => {
+      if (!user) {
+        router.push("/login");
+        return;
+      }
+      const snap = await getDoc(doc(db, "admin", user.uid));
+      if (snap.exists()) {
+        const userRole = snap.data().role;
+        if (userRole !== "admin") router.push("/login");
+      } else {
+        router.push("/login");
+      }
+    });
+    return () => unsubscribe();
+  }, [router]);
 
   const [rows, setRows] = useState<SensorRow[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
@@ -262,6 +289,25 @@ export default function AdminAQIPage() {
           </Link>
         </nav>
         <div className="flex-1"></div>
+
+        {/* Logout button */}
+        <button
+          onClick={() => fbSignOut(auth).then(() => router.push("/login"))}
+          className="flex items-center gap-2.5 py-2.5 px-3 rounded-lg mb-1.5 text-red-500 hover:bg-[#1d3557] hover:text-red-400 transition-all"
+        >
+          <svg
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            className="w-4 h-4 opacity-90 flex-shrink-0"
+          >
+            <path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4" />
+            <path d="M16 17l5-5-5-5" />
+            <path d="M21 12H9" />
+          </svg>
+          Log out
+        </button>
         <div className="text-xs text-[#6ea8d9]">© Adamson University 2025</div>
       </aside>
 

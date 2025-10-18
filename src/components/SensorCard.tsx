@@ -14,6 +14,7 @@ export function SensorCard({
   location,
   source,
   children,
+  rawTemperature,
 }: {
   title: string;
   value: string;
@@ -24,6 +25,7 @@ export function SensorCard({
   location?: string;
   source?: string;
   children?: React.ReactNode;
+  rawTemperature?: string;
 }) {
   // Add severity usage to prevent ESLint warning
   const severityClass = severity ? `severity-${severity}` : "";
@@ -112,10 +114,17 @@ export function SensorCard({
         <div className="sm:text-8xl text-xl">{icon}</div>
         <div>
           <h2 className="text-lg sm:text-2xl font-semibold text-white">
-            {title}
+            {title === "Heat Index" ? "Temperature" : title}
           </h2>
           <p className="text-xl sm:text-2xl mt-2 font-bold">
-            <span className={textColor}>{value}</span>
+            <span className={textColor}>
+              {title === "Heat Index" ? rawTemperature : value}
+            </span>
+            {title === "Heat Index" && (
+              <span className={`${textColor} text-base ml-2 text-gray-400`}>
+                (Feels like: {value})
+              </span>
+            )}
           </p>
           <div>
             <p className={`mt-2 text-2xl ${textColor}`}>{severityLabel}</p>

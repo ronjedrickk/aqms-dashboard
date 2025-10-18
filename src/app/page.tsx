@@ -445,6 +445,9 @@ export default function Page() {
               apiValue={googleData ? `${googleData.heat} °C` : "Loading..."}
               location={googleData?.heatLocation || "Unknown location"}
               source={googleData?.heatSource || "Loading..."}
+              rawTemperature={
+                latest.temperature ? `${latest.temperature.toFixed(1)} °C` : "—"
+              }
             >
               <SimpleArea
                 data={rows}

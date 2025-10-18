@@ -2,8 +2,8 @@
 
 import React, { useEffect, useState } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { FaArrowLeft, FaClock, FaBullhorn, FaPaperPlane } from "react-icons/fa";
-import { db } from "@/lib/firebase";
 import {
   collection,
   onSnapshot,
@@ -13,7 +13,15 @@ import {
   where,
   Timestamp,
   getDocs,
+  getDoc,
+  doc,
+  serverTimestamp,
+  setDoc,
 } from "firebase/firestore";
+
+// Auth + Firestore
+import { auth, db } from "@/lib/firebase";
+import { onAuthStateChanged, signOut as fbSignOut } from "firebase/auth";
 
 // Types
 export type LocationKey =
@@ -134,7 +142,6 @@ interface SensorDocument {
 interface ApiError extends Error {
   message: string;
 }
-
 export default function AdminNotifPage() {
   const [clock, setClock] = useState<string>(new Date().toLocaleTimeString());
   const [selectedDate, setSelectedDate] = useState<string>(
@@ -143,6 +150,26 @@ export default function AdminNotifPage() {
   const [selectedLocation, setSelectedLocation] = useState<LocationKey>(
     "SV Entrance / Parking Lot"
   );
+
+  // Auth - remove unused states
+  const router = useRouter();
+
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, async (user) => {
+      if (!user) {
+        router.push("/login");
+        return;
+      }
+      const snap = await getDoc(doc(db, "admin", user.uid));
+      if (snap.exists()) {
+        const userRole = snap.data().role;
+        if (userRole !== "admin") router.push("/login");
+      } else {
+        router.push("/login");
+      }
+    });
+    return () => unsubscribe();
+  }, [router]);
 
   const [rows, setRows] = useState<SensorRow[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
@@ -162,6 +189,79 @@ export default function AdminNotifPage() {
   useEffect(() => {
     setTitle(`Health & Safety Alert - Location: ${selectedLocation}`);
   }, [selectedLocation]);
+
+  // auto notification toggle state
+  const [autoEnabled, setAutoEnabled] = useState(false);
+  const [loadingToggle, setLoadingToggle] = useState(true);
+
+  useEffect(() => {
+    const fetchAutoSetting = async () => {
+      try {
+        const snap = await getDoc(doc(db, "autonotify", "notifications"));
+        if (snap.exists()) {
+          const data = snap.data();
+          setAutoEnabled(data.autoSend ?? false);
+        }
+      } catch (error) {
+        console.error("❌ Error loading auto notification setting:", error);
+      } finally {
+        setLoadingToggle(false); // ✅ unlocks the button
+      }
+    };
+    fetchAutoSetting();
+  }, []);
+
+  const toggleAutoNotifications = async () => {
+    const newValue = !autoEnabled;
+    setAutoEnabled(newValue);
+    setLoadingToggle(true);
+
+    try {
+      await setDoc(
+        doc(db, "autonotify", "notifications"),
+        { autoSend: newValue, updatedAt: serverTimestamp() },
+        { merge: true }
+      );
+      console.log("✅ Auto notifications set to:", newValue);
+    } catch (error) {
+      console.error("❌ Error updating Firestore:", error);
+    } finally {
+      setLoadingToggle(false); // ✅ re-enable button
+    }
+  };
+
+  // 🔹 Fetch Firestore setting when the page loads
+  useEffect(() => {
+    let interval: ReturnType<typeof setInterval>;
+
+    if (autoEnabled) {
+      interval = setInterval(async () => {
+        console.log("⏰ Auto notification triggered");
+
+        try {
+          // Get the latest sensor data (same logic your manual notification uses)
+          const resData = await fetch("/api/auto-notify");
+          const jsonData = await resData.json();
+
+          // Optionally re-use your manual sender:
+          await fetch("/api/send-notifications", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              title: jsonData.title,
+              body: jsonData.body,
+            }),
+          });
+
+          console.log("📩 Auto notification sent successfully");
+        } catch (err) {
+          console.error("❌ Auto notification failed:", err);
+        }
+      }, 1 * 60 * 1000); // ⏱️ every 1 minute
+    }
+
+    return () => clearInterval(interval);
+  }, [autoEnabled]);
 
   const [sending, setSending] = useState(false);
   const [result, setResult] = useState<string | null>(null);
@@ -251,15 +351,29 @@ export default function AdminNotifPage() {
         snap.forEach((docSnap) => {
           const { min, max, recommendation, severity } = docSnap.data();
           const value =
-            cat === "AQI" ? latest.aqi : cat === "UV" ? latest.uv : latest.heat;
+            cat === "AQI"
+              ? latest.aqi
+              : cat === "UV"
+              ? latest.uv
+              : latest.heat ?? latest.temperature;
 
           if (value >= min && value <= max) {
-            let displayValue = value.toFixed(1);
-            if (cat === "Heat") displayValue += " °C";
+            // 🔹 Display raw temperature for "Heat"
+            let displayValue =
+              cat === "Heat"
+                ? `${latest.temperature?.toFixed(1)} °C`
+                : value.toFixed(1);
 
             messages.push(
-              `${metricIcons[cat]} ${cat}: ${recommendation} (Current: ${displayValue}, )`
+              `${
+                metricIcons[cat]
+              } ${cat}: ${recommendation} (Current: ${displayValue}${
+                cat === "Heat"
+                  ? `, Feels like: ${latest.heat?.toFixed(1)} °C`
+                  : ""
+              })`
             );
+
             if (cat === "AQI") aqiSev = severity.toLowerCase();
             if (cat === "UV") uvSev = severity.toLowerCase();
             if (cat === "Heat") heatSev = severity.toLowerCase();
@@ -429,6 +543,25 @@ export default function AdminNotifPage() {
           </Link>
         </nav>
         <div className="flex-1"></div>
+
+        {/* Logout button */}
+        <button
+          onClick={() => fbSignOut(auth).then(() => router.push("/login"))}
+          className="flex items-center gap-2.5 py-2.5 px-3 rounded-lg mb-1.5 text-red-500 hover:bg-[#1d3557] hover:text-red-400 transition-all"
+        >
+          <svg
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            className="w-4 h-4 opacity-90 flex-shrink-0"
+          >
+            <path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4" />
+            <path d="M16 17l5-5-5-5" />
+            <path d="M21 12H9" />
+          </svg>
+          Log out
+        </button>
         <div className="text-xs text-[#6ea8d9]">© Adamson University 2025</div>
       </aside>
 
@@ -483,6 +616,35 @@ export default function AdminNotifPage() {
                     ))}
                   </select>
                 </div>
+                <div>
+                  <label className="block text-sm font-medium text-white">
+                    Notifications
+                  </label>
+                  <div className="bg-white px-3 py-1 rounded-md ">
+                    <span className="text-black font-medium px-2 py-2">
+                      {autoEnabled
+                        ? "Auto Notifications ON"
+                        : "Auto Notifications OFF"}
+                    </span>
+
+                    <button
+                      onClick={toggleAutoNotifications}
+                      disabled={loadingToggle}
+                      className={` relative inline-flex h-6 w-11 items-center rounded-full transition-colors duration-300 ${
+                        autoEnabled ? "bg-green-500" : "bg-gray-400"
+                      } ${
+                        loadingToggle ? "opacity-50 cursor-not-allowed" : ""
+                      }`}
+                    >
+                      <span
+                        className={` inline-block h-5 w-5 transform rounded-full bg-white transition-transform duration-300 ${
+                          autoEnabled ? "translate-x-5" : "translate-x-1"
+                        }`}
+                      />
+                    </button>
+                  </div>
+                </div>
+                {/* 🔘 Auto Notifications Toggle */}
               </div>
             </div>
           </header>
@@ -536,10 +698,12 @@ export default function AdminNotifPage() {
               </svg>
             }
           />
-
           <Metric
-            label="Heat Index"
-            value={latest ? `${latest.heat.toFixed(1)} °C` : "-"}
+            label="Temperature"
+            value={latest ? `${latest.temperature?.toFixed(1)} °C` : "-"}
+            subValue={
+              latest ? `(Feels like: ${latest.heat.toFixed(1)} °C)` : ""
+            }
             color={getSeverityColor(heatSeverity)}
             icon={
               <svg
@@ -609,11 +773,13 @@ function Metric({
   value,
   color,
   icon,
+  subValue,
 }: {
   label: string;
   value: string;
   color: string;
   icon?: React.ReactNode;
+  subValue?: string;
 }) {
   const displayValue = value === "-" || !value ? "No data" : value;
   return (
@@ -622,7 +788,12 @@ function Metric({
         {icon} {/* 🔹 NEW */}
         {label}
       </div>
-      <div className={`text-2xl font-bold ${color}`}>{displayValue}</div>
+      <div className={`text-2xl font-bold ${color}`}>
+        {displayValue}
+        {subValue && (
+          <span className={`${color} text-sm  ml-1`}>{subValue}</span>
+        )}
+      </div>
     </div>
   );
 }
