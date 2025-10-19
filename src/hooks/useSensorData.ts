@@ -12,7 +12,7 @@ import {
 } from "firebase/firestore";
 import { db } from "@/lib/firebase";
 
-// Add interface for sensor document data
+// sensor document data
 interface SensorDocument {
   created_at: Timestamp;
   pm2_5: string | number;
@@ -23,10 +23,10 @@ interface SensorDocument {
 }
 
 export type SensorRow = {
-  timeLabel: string; // e.g. "12:14:03 PM"
-  aqi: number; // pm2_5
-  uv: number; // uv_index
-  heat: number; // heat index (computed or fallback)
+  timeLabel: string;
+  aqi: number;
+  uv: number;
+  heat: number;
   temperature?: number;
 };
 
@@ -41,7 +41,7 @@ const collectionMap: Record<LocationKey, string> = {
   "SV Entrance / Parking Lot": "sensor_data",
 };
 
-// 🔥 Compute heat index in °C
+// Compute heat index
 function heatIndexCelsius(tempC?: number | null, rh?: number | null) {
   if (tempC == null || rh == null) return tempC ?? 0;
   const T = (tempC * 9) / 5 + 32; // C → F
@@ -56,12 +56,12 @@ function heatIndexCelsius(tempC?: number | null, rh?: number | null) {
     0.00122874 * T * T * R +
     0.00085282 * T * R * R -
     0.00000199 * T * T * R * R;
-  return ((HI - 32) * 5) / 9; // back to C
+  return ((HI - 32) * 5) / 9;
 }
 
 export function useSensorData(
   location: LocationKey | null,
-  count = 20 // 👈 default window size
+  count = 20 // default window size
 ) {
   const [rows, setRows] = useState<SensorRow[]>([]);
   const [latest, setLatest] = useState<SensorRow | null>(null);
@@ -94,7 +94,7 @@ export function useSensorData(
                 ? d.created_at.toDate()
                 : new Date();
 
-              // ✅ Always format to Asia/Manila time
+              //  Asia/Manila time
               const timeLabel = date.toLocaleTimeString("en-PH", {
                 timeZone: "Asia/Manila",
                 hour: "2-digit",

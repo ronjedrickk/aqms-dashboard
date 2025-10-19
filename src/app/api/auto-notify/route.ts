@@ -3,7 +3,7 @@ import { adminDB } from "@/lib/firebase-admin";
 
 export async function GET() {
   try {
-    // 1️⃣ Check if Auto Notifications are enabled by admin
+    // Check if Auto Notifications are enabled
     const settingsSnap = await adminDB.doc("autonotify/notifications").get();
     const settingsData = settingsSnap.data();
 
@@ -11,7 +11,7 @@ export async function GET() {
       return NextResponse.json({ message: "Auto notifications disabled" });
     }
 
-    // 2️⃣ Locations list
+    // Locations list
     const locations = [
       { name: "Quadrangle", collection: "sensor_dataQuad" },
       { name: "Falcon Bridge", collection: "sensor_datafalconbridge" },
@@ -28,7 +28,7 @@ export async function GET() {
       highestSeverity: string;
     }[] = [];
 
-    // 3️⃣ Fetch and analyze each location
+    // Fetch and analyze each location
     for (const loc of locations) {
       const snap = await adminDB
         .collection(loc.collection)
@@ -44,7 +44,7 @@ export async function GET() {
       const humidity = Number(latest.humidity || 0);
       const aqi = Number(latest.pm2_5 || 0);
 
-      // 🔥 New accurate heat index calculation (in °C)
+      //  heat index calculation (in °C)
       function heatIndexCelsius(tempC: number, rh: number): number {
         if (!tempC || !rh) return tempC ?? 0;
         const T = (tempC * 9) / 5 + 32; // C → F
@@ -60,7 +60,7 @@ export async function GET() {
           0.00085282 * T * R * R -
           0.00000199 * T * T * R * R;
 
-        return ((HI - 32) * 5) / 9; // back to °C
+        return ((HI - 32) * 5) / 9;
       }
 
       const heatIndex = heatIndexCelsius(temperature, humidity);
@@ -75,7 +75,7 @@ export async function GET() {
         uvSev = "low",
         heatSev = "low";
 
-      // Match current values to severity thresholds
+      // Match current values to severity
       for (const [cat, tSnap] of Object.entries(thresholds)) {
         tSnap.forEach((docSnap) => {
           const { min, max, severity } = docSnap.data();
@@ -97,7 +97,7 @@ export async function GET() {
           highest = s;
       });
 
-      // Include metrics with severity moderate or higher
+      // Include metrics with severity
       const alerts: string[] = [];
 
       const sevLabels: Record<string, string> = {
@@ -125,11 +125,11 @@ export async function GET() {
       });
     }
 
-    // 4️⃣ Compare all readings and build final message
+    // Compare all readings - build final message
     let title = "";
     let body = "";
 
-    // Find the location with the highest temperature (heat index)
+    // Find the location with the highest temperature
     if (results.length === 0) {
       title = "🌤 No Data Available";
       body = "No recent sensor readings found.";
@@ -151,7 +151,7 @@ export async function GET() {
       }
     }
 
-    // 5️⃣ Send the notification
+    // Send the notification
     await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/send-notifications`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },

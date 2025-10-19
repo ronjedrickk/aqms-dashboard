@@ -43,7 +43,7 @@ const collectionMap: Record<LocationKey, string> = {
   "SV Entrance / Parking Lot": "sensor_data",
 };
 
-// Location details for styling
+// Location details
 const locationDetails: Record<
   LocationKey,
   { title: string; colorClass: string; fontSize: string }
@@ -67,8 +67,6 @@ const locationDetails: Record<
 
 const locationKeys = Object.keys(locationDetails) as LocationKey[];
 
-// Helpers to coerce numbers and compute Heat Index
-// Add interfaces for type safety
 interface SensorData {
   created_at: Timestamp;
   pm2_5: string | number;
@@ -78,7 +76,7 @@ interface SensorData {
   humidity: string | number;
 }
 
-// Update the toNum helper with proper typing
+// Update the toNum helper
 const toNum = (v: string | number | null | undefined): number | null => {
   if (v === null || v === undefined) return null;
   const n = Number(v);
@@ -134,7 +132,7 @@ export default function AdminHeatPage() {
   const [rows, setRows] = useState<SensorRow[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
 
-  // Fetch directly from Firestore (newest-first, filtered by selected date)
+  // Fetch directly from Firestore - newest first
   useEffect(() => {
     setLoading(true);
     const collectionName = collectionMap[selectedLocation];
@@ -158,7 +156,6 @@ export default function AdminHeatPage() {
           const date = d?.created_at?.toDate?.() ?? new Date();
           const timeLabel = date.toLocaleTimeString();
 
-          // Safely coerce values
           const pm25 = toNum(d?.pm2_5) ?? 0;
           const uv = toNum(d?.uv_index) ?? 0;
           const temperature = toNum(d?.temperature);
@@ -233,6 +230,7 @@ export default function AdminHeatPage() {
           <h2 className="text-lg text-[#38bdf8] m-0">Adamson University</h2>
         </div>
         <nav className="flex flex-col mt-4">
+          {/* Dashboard */}
           <Link
             href="/admin"
             className="flex items-center gap-2.5 py-2.5 px-3 rounded-lg mb-1.5 transition-all text-[#e4e8f0] hover:bg-[#1d3557] hover:text-[#38bdf8]"
@@ -251,6 +249,7 @@ export default function AdminHeatPage() {
             </svg>
             Dashboard
           </Link>
+          {/* AQI */}
           <Link
             href="/admin/aqi"
             className="flex items-center gap-2.5 py-2.5 px-3 rounded-lg mb-1.5 transition-all text-[#e4e8f0] hover:bg-[#1d3557] hover:text-[#38bdf8]"
@@ -266,6 +265,7 @@ export default function AdminHeatPage() {
             </svg>
             Air Quality
           </Link>
+          {/* UV Index */}
           <Link
             href="/admin/uv"
             className="flex items-center gap-2.5 py-2.5 px-3 rounded-lg mb-1.5 transition-all text-[#e4e8f0] hover:bg-[#1d3557] hover:text-[#38bdf8]"
@@ -282,6 +282,7 @@ export default function AdminHeatPage() {
             </svg>
             UV Intensity
           </Link>
+          {/* Heat Index - active*/}
           <Link
             href="/admin/heat"
             className="flex items-center gap-2.5 py-2.5 px-3 rounded-lg mb-1.5 transition-all bg-[#1d3557] text-[#38bdf8]"
@@ -297,6 +298,7 @@ export default function AdminHeatPage() {
             </svg>
             Heat Index
           </Link>
+          {/* Notifications */}
           <Link
             href="/admin/notif"
             className="flex items-center gap-2.5 py-2.5 px-3 rounded-lg mb-1.5 transition-all text-[#e4e8f0] hover:bg-[#1d3557] hover:text-[#38bdf8]"
@@ -352,7 +354,7 @@ export default function AdminHeatPage() {
                 </div>
               </div>
 
-              {/* Filters */}
+              {/* date */}
               <div className="flex items-end gap-4 text-black">
                 <div>
                   <label
@@ -369,6 +371,7 @@ export default function AdminHeatPage() {
                     className="border border-gray-300 rounded-md px-3 py-1"
                   />
                 </div>
+                {/* location */}
                 <div>
                   <label
                     htmlFor="location"

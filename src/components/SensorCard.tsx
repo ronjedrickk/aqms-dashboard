@@ -20,17 +20,17 @@ export function SensorCard({
   value: string;
   icon: React.ReactNode;
   iconsapiValue?: React.ReactNode;
-  severity: SeverityLevel; // Keep severity as it's used in parent components
+  severity: SeverityLevel;
   apiValue?: string;
   location?: string;
   source?: string;
   children?: React.ReactNode;
   rawTemperature?: string;
 }) {
-  // Add severity usage to prevent ESLint warning
+  // Add severity usage
   const severityClass = severity ? `severity-${severity}` : "";
 
-  // Get numeric value from string (e.g. "24 °C" → 24)
+  // Get numeric value
   const numericValue = parseFloat(value);
   const type: ReadingType = title.includes("UV")
     ? "UV"
@@ -38,7 +38,7 @@ export function SensorCard({
     ? "Heat"
     : "AQI";
 
-  // Determine severity based on value ranges
+  // Determine severity
   const getSeverityLevel = (
     value: number,
     type: ReadingType
@@ -75,7 +75,7 @@ export function SensorCard({
     switch (type) {
       case "Heat":
         return {
-          low: "Caution",
+          low: "Low",
           moderate: "Extreme Caution",
           high: "Danger",
           extreme: "Extreme Danger",
@@ -89,7 +89,7 @@ export function SensorCard({
           extreme: "Unhealthy",
           critical: "Hazardous",
         }[severity];
-      default: // UV and fallback
+      default:
         return severity.charAt(0).toUpperCase() + severity.slice(1);
     }
   };

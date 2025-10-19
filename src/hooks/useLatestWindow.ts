@@ -11,9 +11,9 @@ import {
   Timestamp,
 } from "firebase/firestore";
 
-// Update interface with Firestore Timestamp
+// Update interface
 interface SensorReading {
-  created_at: Timestamp; // Changed from Date to Timestamp
+  created_at: Timestamp;
   pm2_5: number;
   uv_index: number;
   heat_index: number;

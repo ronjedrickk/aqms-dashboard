@@ -41,14 +41,14 @@ export type SensorRow = {
   heat: number;
 };
 
-// Map locations to Firestore collections
+// Map locations - Firestore collections
 const collectionMap: Record<LocationKey, string> = {
   Quadrangle: "sensor_dataQuad",
   "Falcon Bridge": "sensor_datafalconbridge",
   "SV Entrance / Parking Lot": "sensor_data",
 };
 
-// Location details for styling
+// Location details
 const locationDetails: Record<
   LocationKey,
   { title: string; colorClass: string; fontSize: string }
@@ -110,7 +110,7 @@ export default function AdminUVPage() {
 
     const collectionName = collectionMap[selectedLocation];
 
-    // Build [start, end) for the selected date
+    // Build start - end selected date
     const [y, m, d] = selectedDate.split("-").map(Number);
     const start = new Date(y, m - 1, d, 0, 0, 0, 0);
     const end = new Date(y, m - 1, d + 1, 0, 0, 0, 0);
@@ -119,7 +119,7 @@ export default function AdminUVPage() {
       collection(db, collectionName),
       where("created_at", ">=", Timestamp.fromDate(start)),
       where("created_at", "<", Timestamp.fromDate(end)),
-      orderBy("created_at", "desc"), // newest first
+      orderBy("created_at", "desc"),
       limit(150)
     );
 
@@ -194,9 +194,8 @@ export default function AdminUVPage() {
           </div>
           <h2 className="text-lg text-[#38bdf8] m-0">Adamson University</h2>
         </div>
-        {/* Back */}
-
         <nav className="flex flex-col mt-4">
+          {/*dashboard*/}
           <Link
             href="/admin"
             className="flex items-center gap-2.5 py-2.5 px-3 rounded-lg mb-1.5 transition-all text-[#e4e8f0] hover:bg-[#1d3557] hover:text-[#38bdf8]"
@@ -215,6 +214,7 @@ export default function AdminUVPage() {
             </svg>
             Dashboard
           </Link>
+          {/* AQI */}
           <Link
             href="/admin/aqi"
             className="flex items-center gap-2.5 py-2.5 px-3 rounded-lg mb-1.5 transition-all text-[#e4e8f0] hover:bg-[#1d3557] hover:text-[#38bdf8]"
@@ -230,6 +230,7 @@ export default function AdminUVPage() {
             </svg>
             Air Quality
           </Link>
+          {/* UV Index - active */}
           <Link
             href="/admin/uv"
             className="flex items-center gap-2.5 py-2.5 px-3 rounded-lg mb-1.5 transition-all bg-[#1d3557] text-[#38bdf8]"
@@ -246,6 +247,7 @@ export default function AdminUVPage() {
             </svg>
             UV Intensity
           </Link>
+          {/* Heat Index */}
           <Link
             href="/admin/heat"
             className="flex items-center gap-2.5 py-2.5 px-3 rounded-lg mb-1.5 transition-all text-[#e4e8f0] hover:bg-[#1d3557] hover:text-[#38bdf8]"
@@ -261,6 +263,7 @@ export default function AdminUVPage() {
             </svg>
             Heat Index
           </Link>
+          {/* Notifications */}
           <Link
             href="/admin/notif"
             className="flex items-center gap-2.5 py-2.5 px-3 rounded-lg mb-1.5 transition-all text-[#e4e8f0] hover:bg-[#1d3557] hover:text-[#38bdf8]"
@@ -316,7 +319,7 @@ export default function AdminUVPage() {
                 </div>
               </div>
 
-              {/* Filters */}
+              {/* Date */}
               <div className="flex items-start gap-4 text-black">
                 <div>
                   <label
@@ -333,6 +336,7 @@ export default function AdminUVPage() {
                     className="border border-gray-300 rounded-md px-3 py-1"
                   />
                 </div>
+                {/* Location */}
                 <div>
                   <label
                     htmlFor="location"

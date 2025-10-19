@@ -1,4 +1,3 @@
-// src/lib/firebase-messaging.js
 import { initializeApp } from "firebase/app";
 import { getMessaging, getToken, onMessage } from "firebase/messaging";
 
@@ -9,11 +8,11 @@ const firebaseConfig = {
   appId: "1:59449331551:web:4c1b01af4409e6016030ea",
 };
 
-// ✅ Initialize Firebase
+// Initialize Firebase
 const app = initializeApp(firebaseConfig);
 export const messaging = getMessaging(app);
 
-// ✅ Get FCM token with your VAPID key
+// Get FCM token with your VAPID key
 export async function requestPermissionAndToken() {
   try {
     const permission = await Notification.requestPermission();
@@ -23,7 +22,7 @@ export async function requestPermissionAndToken() {
     }
 
     const token = await getToken(messaging, {
-      vapidKey: process.env.NEXT_PUBLIC_VAPID_KEY, // put your PUBLIC VAPID KEY here
+      vapidKey: process.env.NEXT_PUBLIC_VAPID_KEY,
     });
 
     if (token) {
@@ -39,13 +38,13 @@ export async function requestPermissionAndToken() {
   }
 }
 
-// ✅ Foreground message handler
+// message handler
 onMessage(messaging, (payload) => {
   console.log("📩 Foreground message received:", payload);
 
   const { title, body } = payload.notification || {};
   if (title) {
-    // Show a native notification even in foreground
+    // Show a native notification
     new Notification(title, {
       body,
       icon: "/icon.png",

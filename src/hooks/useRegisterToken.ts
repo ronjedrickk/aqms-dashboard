@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { getMessaging, getToken } from "firebase/messaging";
-import { app } from "@/lib/firebase"; // your firebase client init
+import { app } from "@/lib/firebase"; // firebase client init
 
 export function useRegisterToken() {
   const [loading, setLoading] = useState(false);
@@ -31,7 +31,7 @@ export function useRegisterToken() {
 
       setToken(fcmToken);
 
-      // Call your Cloud Function /api/register-token
+      // Call your FCM /api/register-token
       await fetch("/api/register-token", {
         method: "POST",
         headers: { "Content-Type": "application/json" },

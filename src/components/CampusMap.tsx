@@ -10,12 +10,11 @@ export default function CampusMap({
   onMarkerClick: (location: string) => void;
 }) {
   const mapRef = useRef<HTMLDivElement>(null);
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const mapInstance = useRef<any>(null);
 
   useEffect(() => {
     const loadLeaflet = async () => {
-      const L = await import("leaflet"); // Dynamically import Leaflet
+      const L = await import("leaflet"); // import Leaflet
 
       if (mapRef.current && !mapInstance.current) {
         const imageBounds: L.LatLngBoundsExpression = [
@@ -31,24 +30,24 @@ export default function CampusMap({
           maxBoundsViscosity: 1.0,
         });
 
-        const imageUrl = "/maps/adu_map.jpg"; // Path to your campus map image
+        const imageUrl = "/maps/adu_map.jpg";
         L.imageOverlay(imageUrl, imageBounds).addTo(mapInstance.current);
         mapInstance.current.fitBounds(imageBounds);
 
-        // Function to create a marker with a popup label
+        // Function to create a marker
         const createInteractiveMarker = (
           coords: [number, number],
           color: string,
           popupText: string
         ) => {
-          const iconSize: [number, number] = [50, 50]; // Define icon size
+          const iconSize: [number, number] = [50, 50]; // icon size
           const marker = L.marker(coords, {
             icon: L.divIcon({
               className: "custom-icon",
               html: `<div style="color: ${color}; font-size: ${iconSize[1]}px;"><i class="fas fa-map-marker-alt"></i></div>`,
               iconSize: iconSize,
-              iconAnchor: [iconSize[0] / 2, iconSize[1]], // Anchor at bottom-center
-              popupAnchor: [2, -iconSize[1]], // Position popup above the icon
+              iconAnchor: [iconSize[0] / 2, iconSize[1]],
+              popupAnchor: [2, -iconSize[1]], // position on popup
             }),
           });
 
@@ -64,7 +63,7 @@ export default function CampusMap({
             );
         };
 
-        // Add markers with interactive behavior
+        // marker locations
         createInteractiveMarker([400, 335], "red", "Quadrangle");
         createInteractiveMarker([350, 490], "blue", "Falcon Bridge");
         createInteractiveMarker(
@@ -83,8 +82,7 @@ export default function CampusMap({
         mapInstance.current = null;
       }
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []); // Keep empty dependency array
+  }, []);
 
   return (
     <div className="w-full h-[300px] rounded-lg overflow-hidden shadow-lg">

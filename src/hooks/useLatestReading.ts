@@ -8,7 +8,6 @@ import {
   onSnapshot,
 } from "firebase/firestore";
 
-// Strongly typed sensor reading
 interface SensorReading {
   created_at: Timestamp;
   pm2_5: number;

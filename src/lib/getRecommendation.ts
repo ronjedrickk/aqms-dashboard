@@ -12,7 +12,7 @@ export async function getRecommendation(latest: SensorReadings) {
   let baseMessages: string[] = [];
   let maxSeverity: "low" | "moderate" | "high" | "extreme" = "low";
 
-  // Step 1: Fetch thresholds for each category
+  // Fetch thresholds for each category
   for (const cat of categories) {
     const snap = await getDocs(collection(db, "recommendations", cat));
     snap.forEach((doc) => {
@@ -33,7 +33,7 @@ export async function getRecommendation(latest: SensorReadings) {
     });
   }
 
-  // Step 2: Check combination overrides
+  // Check combination overrides
   const comboSnap = await getDocs(
     collection(db, "recommendations/combinations")
   );

@@ -52,7 +52,7 @@ const locationDetails: Record<LocationKey, { title: string }> = {
 
 const locationKeys = Object.keys(locationDetails) as LocationKey[];
 
-// 🔹 Severity ranking
+// Severity ranking
 const severityOrder = ["low", "moderate", "high", "extreme", "critical"];
 
 // Decide highest severity
@@ -67,7 +67,7 @@ function getHighestSeverity(severities: (string | undefined)[]): string {
   return highest;
 }
 
-// 🔥 Compute heat index in °C
+// Compute heat index in °C
 function heatIndexCelsius(tempC?: number | null, rh?: number | null) {
   if (tempC == null || rh == null) return tempC ?? 0;
   const T = (tempC * 9) / 5 + 32; // C → F
@@ -82,10 +82,10 @@ function heatIndexCelsius(tempC?: number | null, rh?: number | null) {
     0.00122874 * T * T * R +
     0.00085282 * T * R * R -
     0.00000199 * T * T * R * R;
-  return ((HI - 32) * 5) / 9; // back to C
+  return ((HI - 32) * 5) / 9;
 }
 
-// Map severity → bg color
+// bg color
 function getBgColorFromSeverity(severity: string): string {
   switch (severity.toLowerCase()) {
     case "low":
@@ -103,7 +103,7 @@ function getBgColorFromSeverity(severity: string): string {
   }
 }
 
-// Map severity → text color
+// text color
 const getSeverityColor = (severity: string) => {
   switch (severity.toLowerCase()) {
     case "low":
@@ -128,7 +128,6 @@ const getSeverityColor = (severity: string) => {
   }
 };
 
-// Add interface for Firestore document data
 interface SensorDocument {
   created_at: Timestamp;
   pm2_5: string | number;
@@ -138,7 +137,6 @@ interface SensorDocument {
   heat_index?: string | number;
 }
 
-// Update function to use TypeScript error type
 interface ApiError extends Error {
   message: string;
 }
@@ -205,7 +203,7 @@ export default function AdminNotifPage() {
       } catch (error) {
         console.error("❌ Error loading auto notification setting:", error);
       } finally {
-        setLoadingToggle(false); // ✅ unlocks the button
+        setLoadingToggle(false);
       }
     };
     fetchAutoSetting();
@@ -226,11 +224,11 @@ export default function AdminNotifPage() {
     } catch (error) {
       console.error("❌ Error updating Firestore:", error);
     } finally {
-      setLoadingToggle(false); // ✅ re-enable button
+      setLoadingToggle(false); //
     }
   };
 
-  // 🔹 Fetch Firestore setting when the page loads
+  // Fetch Firestore setting when the page loads
   useEffect(() => {
     let interval: ReturnType<typeof setInterval>;
 
@@ -239,7 +237,7 @@ export default function AdminNotifPage() {
         console.log("⏰ Auto notification triggered");
 
         try {
-          // Get the latest sensor data (same logic your manual notification uses)
+          // Get the latest sensor data
           const resData = await fetch("/api/auto-notify");
           const jsonData = await resData.json();
 
@@ -257,7 +255,7 @@ export default function AdminNotifPage() {
         } catch (err) {
           console.error("❌ Auto notification failed:", err);
         }
-      }, 1 * 60 * 1000); // ⏱️ every 1 minute
+      }, 1 * 60 * 1000); // every 1 minute
     }
 
     return () => clearInterval(interval);
@@ -327,7 +325,7 @@ export default function AdminNotifPage() {
 
   // Compute recommendation
   useEffect(() => {
-    // 🔹 Emoji icons for notification messages
+    // Emoji icons for notification messages
     const metricIcons: Record<string, string> = {
       AQI: "🌫️",
       UV: "🔆",
@@ -358,7 +356,7 @@ export default function AdminNotifPage() {
               : latest.heat ?? latest.temperature;
 
           if (value >= min && value <= max) {
-            // 🔹 Display raw temperature for "Heat"
+            // Display raw temperature for "Heat"
             let displayValue =
               cat === "Heat"
                 ? `${latest.temperature?.toFixed(1)} °C`
@@ -381,7 +379,7 @@ export default function AdminNotifPage() {
         });
       }
 
-      // Combination rules (if defined under categories/combinations)
+      // Combination rules
       const comboSnap = await getDocs(
         collection(db, "categories", "combinations", "rules")
       );
@@ -461,6 +459,7 @@ export default function AdminNotifPage() {
           <h2 className="text-lg text-[#38bdf8] m-0">Adamson University</h2>
         </div>
         <nav className="flex flex-col mt-4">
+          {/* Dashboard */}
           <Link
             href="/admin"
             className="flex items-center gap-2.5 py-2.5 px-3 rounded-lg mb-1.5 transition-all text-[#e4e8f0] hover:bg-[#1d3557] hover:text-[#38bdf8]"
@@ -479,6 +478,7 @@ export default function AdminNotifPage() {
             </svg>
             Dashboard
           </Link>
+          {/* AQI */}
           <Link
             href="/admin/aqi"
             className="flex items-center gap-2.5 py-2.5 px-3 rounded-lg mb-1.5 transition-all text-[#e4e8f0] hover:bg-[#1d3557] hover:text-[#38bdf8]"
@@ -494,6 +494,7 @@ export default function AdminNotifPage() {
             </svg>
             Air Quality
           </Link>
+          {/* UV */}
           <Link
             href="/admin/uv"
             className="flex items-center gap-2.5 py-2.5 px-3 rounded-lg mb-1.5 transition-all text-[#e4e8f0] hover:bg-[#1d3557] hover:text-[#38bdf8]"
@@ -510,6 +511,7 @@ export default function AdminNotifPage() {
             </svg>
             UV Intensity
           </Link>
+          {/* Heat Index */}
           <Link
             href="/admin/heat"
             className="flex items-center gap-2.5 py-2.5 px-3 rounded-lg mb-1.5 transition-all text-[#e4e8f0] hover:bg-[#1d3557] hover:text-[#38bdf8]"
@@ -525,6 +527,7 @@ export default function AdminNotifPage() {
             </svg>
             Heat Index
           </Link>
+          {/* Notifications - active */}
           <Link
             href="/admin/notif"
             className="flex items-center gap-2.5 py-2.5 px-3 rounded-lg mb-1.5 transition-all bg-[#1d3557] text-[#38bdf8]"
@@ -583,9 +586,7 @@ export default function AdminNotifPage() {
                 </div>
               </div>
 
-              {/* Nav */}
-
-              {/* Filters */}
+              {/* Date */}
               <div className="flex items-end gap-4 text-black">
                 <div>
                   <label className="block text-sm font-medium text-white">
@@ -598,6 +599,7 @@ export default function AdminNotifPage() {
                     className="border border-gray-300 rounded-md px-3 py-1"
                   />
                 </div>
+                {/* Location */}
                 <div>
                   <label className="block text-sm font-medium text-white">
                     Location
@@ -616,6 +618,7 @@ export default function AdminNotifPage() {
                     ))}
                   </select>
                 </div>
+                {/* Auto Notifications Toggle */}
                 <div>
                   <label className="block text-sm font-medium text-white">
                     Notifications
@@ -644,7 +647,6 @@ export default function AdminNotifPage() {
                     </button>
                   </div>
                 </div>
-                {/* 🔘 Auto Notifications Toggle */}
               </div>
             </div>
           </header>
@@ -664,6 +666,7 @@ export default function AdminNotifPage() {
 
         {/* 3 Cards + Notification */}
         <div className="grid gap-6 md:grid-cols-3 mx-5 mt-6">
+          {/* Air Quality */}
           <Metric
             label="Air Quality"
             value={latest ? `${latest.aqi.toFixed(1)} AQI` : "-"}
@@ -680,7 +683,7 @@ export default function AdminNotifPage() {
               </svg>
             }
           />
-
+          {/* UV Intensity */}
           <Metric
             label="UV Intensity"
             value={latest ? `${latest.uv.toFixed(1)} UV` : "-"}
@@ -698,6 +701,7 @@ export default function AdminNotifPage() {
               </svg>
             }
           />
+          {/* Temperature / Heat Index */}
           <Metric
             label="Temperature"
             value={latest ? `${latest.temperature?.toFixed(1)} °C` : "-"}
@@ -785,7 +789,7 @@ function Metric({
   return (
     <div className="rounded-xl bg-white px-4 py-5 border border-[#A7A9AC] shadow-sm flex flex-col items-center justify-center">
       <div className="flex items-center gap-2 text-md font-medium text-gray-700">
-        {icon} {/* 🔹 NEW */}
+        {icon}
         {label}
       </div>
       <div className={`text-2xl font-bold ${color}`}>

@@ -11,7 +11,7 @@ interface GoogleData {
   heatLocation?: string;
   heatSource?: string;
 }
-// Add after existing interfaces
+
 interface ThresholdData {
   min: number;
   max: number;
@@ -58,7 +58,7 @@ const locationDetails: Record<
   },
 };
 
-// 🔹 Utility: map severity to Tailwind colors
+// severity to Tailwind colors
 const getSeverityColor = (severity: string) => {
   switch (severity.toLowerCase()) {
     case "low":
@@ -83,9 +83,6 @@ const getSeverityColor = (severity: string) => {
   }
 };
 
-// Remove unused functions: getRecommendation, getSensorSeverity
-
-// Rank severities
 const severityRank: Record<string, number> = {
   low: 1,
   moderate: 2,
@@ -93,10 +90,10 @@ const severityRank: Record<string, number> = {
   extreme: 4,
 };
 
-// Rank severities in order
+// severities in order
 const severityOrder = ["low", "moderate", "high", "extreme", "critical"];
 
-// Decide which severity is highest among AQI, UV, Heat
+// Decide which severity is highest
 function getHighestSeverity(severities: (string | undefined)[]): string {
   let highest = "low";
 
@@ -112,21 +109,21 @@ function getHighestSeverity(severities: (string | undefined)[]): string {
   return highest;
 }
 
-// Map severity → background color
+// background color
 function getBgColorFromSeverity(severity: string): string {
   switch (severity.toLowerCase()) {
     case "low":
-      return "bg-green-500"; // ✅ Low
+      return "bg-green-500";
     case "moderate":
-      return "bg-[#FFD93D]"; // ✅ Moderate
+      return "bg-[#FFD93D]";
     case "high":
-      return "bg-[#FF9A00]"; // ✅ High
+      return "bg-[#FF9A00]";
     case "extreme":
-      return "bg-[#E62727]"; // ✅ Extreme
+      return "bg-[#E62727]";
     case "critical":
-      return "bg-black"; // ⚡ Example for critical (change as needed)
+      return "bg-black";
     default:
-      return "bg-gray-400"; // fallback
+      return "bg-gray-400";
   }
 }
 
@@ -163,18 +160,18 @@ export default function AdminPage() {
     return () => unsubscribe();
   }, [router]);
 
-  // ✅ unified hook: latest + rows
+  // unified hook: latest + rows
   const { latest, rows } = useSensorData(activeLocation, 8);
 
-  // ✅ recommendation state
+  // recommendation state
   const [recommendation, setRecommendation] = useState("Loading...");
 
-  // ✅ per-sensor severities
+  // per-sensor severities
   const [aqiSeverity, setAqiSeverity] = useState<SeverityLevel>("low");
   const [uvSeverity, setUvSeverity] = useState<SeverityLevel>("low");
   const [heatSeverity, setHeatSeverity] = useState<SeverityLevel>("low");
 
-  // ✅ Google API data with proper typing
+  // Google API data with proper typing
   const [googleData, setGoogleData] = useState<GoogleData | null>(null);
 
   useEffect(() => {
@@ -190,7 +187,7 @@ export default function AdminPage() {
     fetchGoogle();
   }, []);
 
-  // 🔥 Get overall recommendation + per-sensor severities
+  // Get overall recommendation + per-sensor severities
   useEffect(() => {
     if (!latest) return;
 
@@ -236,7 +233,7 @@ export default function AdminPage() {
 
   return (
     <div className="flex min-h-screen bg-[#0a1f44] text-white font-['Inter']">
-      {/* Sidebar from draft.html */}
+      {/* Sidebar */}
       <aside className="w-60 bg-[#0b1a33] p-5 flex flex-col gap-4 sticky top-0 h-screen">
         <div className="flex items-center gap-2.5">
           <div className="w-9 h-9 rounded-[10px] bg-[#071327] grid place-items-center text-white font-extrabold">
@@ -244,8 +241,8 @@ export default function AdminPage() {
           </div>
           <h2 className="text-lg text-[#38bdf8] m-0">Adamson University</h2>
         </div>
-
         <nav className="flex flex-col">
+          {/* Dashboard - active */}
           <Link
             href="/admin"
             className={`flex items-center gap-2.5 py-2.5 px-3 rounded-lg mb-1.5 transition-all
@@ -270,7 +267,7 @@ export default function AdminPage() {
             </svg>
             Dashboard
           </Link>
-
+          {/* AQI  */}
           <Link
             href="/admin/aqi"
             className={`flex items-center gap-2.5 py-2.5 px-3 rounded-lg mb-1.5 transition-all
@@ -292,7 +289,7 @@ export default function AdminPage() {
             </svg>
             Air Quality
           </Link>
-
+          {/* UV */}
           <Link
             href="/admin/uv"
             className={`flex items-center gap-2.5 py-2.5 px-3 rounded-lg mb-1.5 transition-all
@@ -315,7 +312,7 @@ export default function AdminPage() {
             </svg>
             UV Intensity
           </Link>
-
+          {/* Heat Index */}
           <Link
             href="/admin/heat"
             className={`flex items-center gap-2.5 py-2.5 px-3 rounded-lg mb-1.5 transition-all
@@ -337,7 +334,7 @@ export default function AdminPage() {
             </svg>
             Heat Index
           </Link>
-
+          {/* Notifications */}
           <Link
             href="/admin/notif"
             className={`flex items-center gap-2.5 py-2.5 px-3 rounded-lg mb-1.5 transition-all
@@ -386,9 +383,9 @@ export default function AdminPage() {
         <div className="text-xs text-[#6ea8d9]">© Adamson University 2025</div>
       </aside>
 
-      {/* Main content remains unchanged */}
+      {/* Main content */}
       <main className="flex-1">
-        {/* Recommendation section with clock beside */}
+        {/* Recommendation + Clock*/}
         <div className="flex justify-center items-center p-5">
           <div className="flex items-center gap-6 ">
             <div className="flex items-center gap-2 text-[#e4e8f0] bg-[#071327] rounded-xl px-4 py-2 shadow max-w-50">
@@ -422,7 +419,7 @@ export default function AdminPage() {
           </div>
         </div>
 
-        {/* Current values + charts - keeping original code */}
+        {/* Current values + charts*/}
         <section className="my-6 px-5">
           {latest && (
             <div className="grid grid-cols-1 md:grid-cols-3 gap-3 mb-6">
@@ -517,7 +514,7 @@ export default function AdminPage() {
             </div>
           )}
 
-          {/* Map + Combined chart - keeping original code */}
+          {/* Map + Combined chart */}
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
             <div className="flex flex-col justify-center items-center">
               <h3 className="text-lg font-semibold text-white mb-2">

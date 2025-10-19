@@ -1,4 +1,3 @@
-// src/lib/notifications.ts
 import { adminMessaging, adminDB } from "./firebase-admin";
 
 /**

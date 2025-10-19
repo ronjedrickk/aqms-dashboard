@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import { getMessaging, getToken } from "firebase/messaging";
 import { app } from "@/lib/firebase";
 
-// Add interface for error handling
+// error handling
 interface NotificationError extends Error {
   code?: string;
   message: string;

@@ -22,7 +22,7 @@ export function useGoogleReadings() {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const res = await fetch("/api/google-readings"); // ✅ relative path
+        const res = await fetch("/api/google-readings");
         const json = await res.json();
         setData(json);
       } catch (err) {

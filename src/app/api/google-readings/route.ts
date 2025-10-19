@@ -1,6 +1,6 @@
-export const runtime = "nodejs"; // ensure Node.js runtime
+export const runtime = "nodejs"; // node.js runtime
 
-// 🗂 Cache the latest good data + timestamp
+// 🗂 Cache the latest data
 let cachedData: {
   aqi: number | null;
   uv: number | null;
@@ -35,13 +35,13 @@ export async function GET() {
     const now = Date.now();
     const oneHour = 60 * 60 * 1000;
 
-    //  Use cached data if < 1 hour old
+    //  Use cached data
     if (cachedData.lastUpdated && now - cachedData.lastUpdated < oneHour) {
       console.log("⚡ Using cached data:", cachedData);
       return Response.json(cachedData);
     }
 
-    //  Step 1: IQAir API (nearest city to Manila)
+    // IQAir API (nearest city to Manila)
     try {
       const iqRes = await fetch(
         `http://api.airvisual.com/v2/nearest_city?lat=14.5995&lon=120.9842&key=${IQAIR_KEY}`
@@ -65,7 +65,7 @@ export async function GET() {
       console.error("❌ IQAir error:", e);
     }
 
-    // ☀️ UV Index
+    // UV Index
     try {
       const uvRes = await fetch(
         `https://currentuvindex.com/api/v1/uvi?latitude=${location.latitude}&longitude=${location.longitude}`
@@ -85,7 +85,7 @@ export async function GET() {
       console.error("❌ UV API error:", e);
     }
 
-    // 🌡 OpenWeather Heat
+    // OpenWeather Heat
     try {
       const owRes = await fetch(
         `https://api.openweathermap.org/data/2.5/weather?q=manila,ph&units=metric&appid=${OPENWEATHER_KEY}`
@@ -107,7 +107,7 @@ export async function GET() {
     }
 
     console.log("✅ Latest cached data:", cachedData);
-    return Response.json(cachedData); //  Correct way in Next.js
+    return Response.json(cachedData);
   } catch (err) {
     console.error("❌ API fetch error:", err);
     return Response.json(cachedData);

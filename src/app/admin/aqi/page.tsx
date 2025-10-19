@@ -29,12 +29,11 @@ export type LocationKey =
 
 export type SensorRow = {
   timeLabel: string;
-  aqi: number; // pm2_5
+  aqi: number;
   uv: number;
   heat: number;
 };
 
-// Add interface for Firestore document data
 interface SensorData {
   created_at: Timestamp;
   pm2_5: string | number;
@@ -42,14 +41,14 @@ interface SensorData {
   heat_index: string | number;
 }
 
-// Map locations to Firestore collections
+// Map locations - firestore collection
 const collectionMap: Record<LocationKey, string> = {
   Quadrangle: "sensor_dataQuad",
   "Falcon Bridge": "sensor_datafalconbridge",
   "SV Entrance / Parking Lot": "sensor_data",
 };
 
-// Location details for styling
+// Location details
 const locationDetails: Record<
   LocationKey,
   { title: string; colorClass: string; fontSize: string }
@@ -105,13 +104,13 @@ export default function AdminAQIPage() {
   const [rows, setRows] = useState<SensorRow[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
 
-  // Fetch directly from Firestore (date-filtered, newest-first)
+  // Fetch directly from Firestore - newest first
   useEffect(() => {
     setLoading(true);
 
     const collectionName = collectionMap[selectedLocation];
 
-    // Build [start, end) for the selected date
+    // Build start - end selected date
     const [y, m, d] = selectedDate.split("-").map(Number);
     const start = new Date(y, m - 1, d, 0, 0, 0, 0);
     const end = new Date(y, m - 1, d + 1, 0, 0, 0, 0);
@@ -120,7 +119,7 @@ export default function AdminAQIPage() {
       collection(db, collectionName),
       where("created_at", ">=", Timestamp.fromDate(start)),
       where("created_at", "<", Timestamp.fromDate(end)),
-      orderBy("created_at", "desc"), // newest first
+      orderBy("created_at", "desc"),
       limit(150)
     );
 
@@ -207,6 +206,7 @@ export default function AdminAQIPage() {
           <h2 className="text-lg text-[#38bdf8] m-0">Adamson University</h2>
         </div>
         <nav className="flex flex-col mt-4">
+          {/* Dashboard */}
           <Link
             href="/admin"
             className="flex items-center gap-2.5 py-2.5 px-3 rounded-lg mb-1.5 transition-all text-[#e4e8f0] hover:bg-[#1d3557] hover:text-[#38bdf8]"
@@ -225,6 +225,7 @@ export default function AdminAQIPage() {
             </svg>
             Dashboard
           </Link>
+          {/* AQI - active */}
           <Link
             href="/admin/aqi"
             className="flex items-center gap-2.5 py-2.5 px-3 rounded-lg mb-1.5 transition-all bg-[#1d3557] text-[#38bdf8]"
@@ -240,6 +241,7 @@ export default function AdminAQIPage() {
             </svg>
             Air Quality
           </Link>
+          {/* UV Index */}
           <Link
             href="/admin/uv"
             className="flex items-center gap-2.5 py-2.5 px-3 rounded-lg mb-1.5 transition-all text-[#e4e8f0] hover:bg-[#1d3557] hover:text-[#38bdf8]"
@@ -256,6 +258,7 @@ export default function AdminAQIPage() {
             </svg>
             UV Intensity
           </Link>
+          {/* Heat Index */}
           <Link
             href="/admin/heat"
             className="flex items-center gap-2.5 py-2.5 px-3 rounded-lg mb-1.5 transition-all text-[#e4e8f0] hover:bg-[#1d3557] hover:text-[#38bdf8]"
@@ -271,6 +274,7 @@ export default function AdminAQIPage() {
             </svg>
             Heat Index
           </Link>
+          {/* Notifications */}
           <Link
             href="/admin/notif"
             className="flex items-center gap-2.5 py-2.5 px-3 rounded-lg mb-1.5 transition-all text-[#e4e8f0] hover:bg-[#1d3557] hover:text-[#38bdf8]"
@@ -326,7 +330,7 @@ export default function AdminAQIPage() {
                 </div>
               </div>
 
-              {/* Filters */}
+              {/* date */}
               <div className="flex items-end gap-4 text-black">
                 <div>
                   <label
@@ -343,6 +347,7 @@ export default function AdminAQIPage() {
                     className="border border-gray-300 rounded-md px-3 py-1"
                   />
                 </div>
+                {/* Location selector */}
                 <div>
                   <label
                     htmlFor="location"

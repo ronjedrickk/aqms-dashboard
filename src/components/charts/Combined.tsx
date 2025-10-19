@@ -11,7 +11,7 @@ import {
   ReferenceDot,
 } from "recharts";
 
-// Custom hook to get window size
+// get window size
 const useWindowSize = () => {
   const [size, setSize] = useState<[number, number]>([0, 0]);
   useEffect(() => {
@@ -25,7 +25,6 @@ const useWindowSize = () => {
   return size;
 };
 
-// Add interfaces at the top of file
 interface ChartDataPoint {
   timeLabel: string;
   aqi: number;
@@ -39,7 +38,7 @@ export function Combined({ data }: { data: ChartDataPoint[] }) {
   const isSmallScreen = width < 768;
   const dataToShow = isSmallScreen ? 15 : 10;
 
-  // Data comes newest-first; take the latest N then reverse to chronological (oldest -> newest)
+  // Data comes newest-first;  oldest -> newest
   const latestChrono = [...data].slice(0, dataToShow);
 
   // Format heat to one decimal
@@ -48,7 +47,7 @@ export function Combined({ data }: { data: ChartDataPoint[] }) {
     heat: parseFloat(d.heat.toFixed(1)),
   }));
 
-  // HH:MM time labels
+  // time labels
   const timeFormattedData = formattedData.map((d) => {
     const [time] = d.timeLabel.split(" ");
     const [h, m] = time.split(":");
@@ -88,6 +87,7 @@ export function Combined({ data }: { data: ChartDataPoint[] }) {
                 data={timeFormattedData}
                 margin={{ top: 40, right: 30, left: 0, bottom: 10 }}
               >
+                {/* Gradient definition for area fill */}
                 <defs>
                   <linearGradient id="aqi-fill" x1="0" y1="0" x2="0" y2="1">
                     <stop offset="5%" stopColor="#ef4444" stopOpacity={0.8} />

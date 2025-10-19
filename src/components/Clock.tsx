@@ -5,19 +5,19 @@ export default function Clock() {
   const [time, setTime] = useState<string>("");
 
   useEffect(() => {
-    // Function to update time every second
+    // update time every second
     const updateClock = () => {
       const now = new Date();
       setTime(now.toLocaleTimeString());
     };
 
-    updateClock(); // Initialize immediately
+    updateClock();
     const interval = setInterval(updateClock, 1000);
 
     return () => clearInterval(interval);
   }, []);
 
-  // Don't render anything until time is set (avoids hydration mismatch)
+  // Don't render anything until time is set
   if (!time) return null;
 
   return (

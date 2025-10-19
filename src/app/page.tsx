@@ -10,7 +10,7 @@ import CampusMap from "@/components/CampusMap";
 import { FaClock } from "react-icons/fa";
 import { useNotifications } from "@/hooks/useNotifications";
 
-// ✅ Firestore
+// Firestore
 import { collection, getDocs } from "firebase/firestore";
 import { db } from "@/lib/firebase";
 import type { SeverityLevel } from "@/types/severity";
@@ -55,7 +55,7 @@ const locationDetails: Record<
   },
 };
 
-// 🔹 Utility: map severity to Tailwind colors
+// map severity to Tailwind colors
 const getSeverityColor = (severity: string) => {
   switch (severity.toLowerCase()) {
     case "low":
@@ -91,7 +91,7 @@ const severityRank: Record<string, number> = {
 // Rank severities in order
 const severityOrder = ["low", "moderate", "high", "extreme", "critical"];
 
-// Decide which severity is highest among AQI, UV, Heat
+// Decide which severity is highest
 function getHighestSeverity(severities: (string | undefined)[]): string {
   let highest = "low";
 
@@ -107,7 +107,7 @@ function getHighestSeverity(severities: (string | undefined)[]): string {
   return highest;
 }
 
-// Map severity → background color
+// severity background color
 function getBgColorFromSeverity(severity: string): string {
   switch (severity.toLowerCase()) {
     case "low":

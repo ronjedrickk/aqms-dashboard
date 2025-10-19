@@ -1,4 +1,3 @@
-// src/lib/firebase-admin.ts
 import * as admin from "firebase-admin";
 
 let adminDB: admin.firestore.Firestore;

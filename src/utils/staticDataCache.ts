@@ -17,7 +17,7 @@ export type SensorRow = {
   heat: number;
 };
 
-// Explicit type for Firestore sensor documents
+// Clear firestore document data
 interface FirestoreSensorDoc extends DocumentData {
   created_at?: { toDate?: () => Date };
   pm2_5?: number | string;
@@ -85,14 +85,14 @@ interface UpdateCacheParams {
   locationName?: string;
 }
 
-// Initialize cache with proper types
+// Initialize cache
 const cache: DataCache = {
   aqi: { value: null },
   uv: { value: null },
   heat: { value: null },
 };
 
-// Update the function signature with proper types
+// Update the function signature
 export function getCache(): DataCache {
   return cache;
 }

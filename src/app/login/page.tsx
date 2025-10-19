@@ -7,7 +7,7 @@ import { doc, getDoc } from "firebase/firestore";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 
-// Add interface for API error
+// for login error
 interface LoginError extends Error {
   code?: string;
   message: string;
@@ -108,7 +108,7 @@ export default function LoginPage() {
               {error}
             </div>
           )}
-
+          {/* Forgot Password */}
           <div className="text-right">
             <button
               type="button"
@@ -118,7 +118,7 @@ export default function LoginPage() {
               Forgot password?
             </button>
           </div>
-
+          {/* Submit Button */}
           <button
             type="submit"
             disabled={loading}

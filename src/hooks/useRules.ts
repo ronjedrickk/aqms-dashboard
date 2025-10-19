@@ -1,4 +1,3 @@
-// useRules.ts (custom hook)
 "use client";
 
 import { useEffect, useState } from "react";

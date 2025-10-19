@@ -23,10 +23,10 @@ export function SimpleArea({
   stroke: string;
   fillId: string;
 }) {
-  // Limit to last 8 readings (now already ascending from the hook)
+  // show only last 8 readings
   const limitedData = data.slice(-8);
 
-  // Decimals by marker (series)
+  // Decimals by marker
   const decimalsByKey: Record<"aqi" | "uv" | "heat", number> = {
     aqi: 1,
     uv: 1,
@@ -44,9 +44,9 @@ export function SimpleArea({
     return { ...d, [dataKey]: rounded } as SensorRow;
   });
 
-  // Build unique X key (HH:MM:SS) and readable tick (HH:MM)
+  // Build unique X key and readable tick
   const parseTime = (label: string) => {
-    const m = label.match(/(\d+):(\d+)(?::(\d+))?/); // HH:MM[:SS]
+    const m = label.match(/(\d+):(\d+)(?::(\d+))?/);
     if (!m) return { hhmm: label, hhmmss: label };
     const [, h, mm, ss] = m;
     return { hhmm: `${h}:${mm}`, hhmmss: `${h}:${mm}:${ss ?? "00"}` };
@@ -57,7 +57,7 @@ export function SimpleArea({
     return { ...d, timeLabelFull: hhmmss, timeTick: hhmm };
   });
 
-  // Dynamic Y domain with safeguards
+  // Dynamic Y domain
   const vals = formattedData.map((d) => d[dataKey]);
   let min = Math.min(...vals);
   let max = Math.max(...vals);
@@ -86,6 +86,7 @@ export function SimpleArea({
                 data={timeData}
                 margin={{ top: 40, right: 30, left: 5, bottom: 10 }}
               >
+                {/* Gradient definition for area fill */}
                 <defs>
                   <linearGradient id={fillId} x1="0" y1="0" x2="0" y2="1">
                     <stop offset="5%" stopColor={stroke} stopOpacity={0.8} />
