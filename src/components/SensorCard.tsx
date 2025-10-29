@@ -30,15 +30,19 @@ export function SensorCard({
   // Add severity usage
   const severityClass = severity ? `severity-${severity}` : "";
 
-  // Get numeric value
-  const numericValue = parseFloat(value);
+  // Get numeric value - use raw temperature for Heat type
+  const numericValue =
+    title.includes("Heat") && rawTemperature
+      ? parseFloat(rawTemperature)
+      : parseFloat(value);
+
   const type: ReadingType = title.includes("UV")
     ? "UV"
     : title.includes("Heat")
     ? "Heat"
     : "AQI";
 
-  // Determine severity
+  // Updated temperature thresholds for raw temperature
   const getSeverityLevel = (
     value: number,
     type: ReadingType
@@ -51,10 +55,10 @@ export function SensorCard({
         if (value <= 11) return "extreme";
         return "critical";
       case "Heat":
-        if (value <= 32) return "low";
-        if (value <= 39) return "moderate";
-        if (value <= 51) return "high";
-        if (value <= 60) return "extreme";
+        if (value <= 27) return "low";
+        if (value <= 32) return "moderate";
+        if (value <= 39) return "high";
+        if (value <= 100) return "extreme";
         return "critical";
       case "AQI":
         if (value <= 50) return "low";
@@ -67,7 +71,7 @@ export function SensorCard({
     }
   };
 
-  // Get severity label
+  // Updated severity labels for temperature
   const getSeverityLabel = (
     severity: SeverityLevel,
     type: ReadingType
@@ -75,11 +79,11 @@ export function SensorCard({
     switch (type) {
       case "Heat":
         return {
-          low: "Low",
-          moderate: "Extreme Caution",
-          high: "Danger",
-          extreme: "Extreme Danger",
-          critical: "Critical Danger",
+          low: "Normal",
+          moderate: "Caution",
+          high: "Extreme Caution",
+          extreme: "Danger",
+          critical: "Critical",
         }[severity];
       case "AQI":
         return {
@@ -99,7 +103,7 @@ export function SensorCard({
     moderate: "text-[#FFD93D]",
     high: "text-[#FF9A00]",
     extreme: "text-[#E62727]",
-    critical: "text-black",
+    critical: "text-[#E62727]",
   };
 
   const calculatedSeverity = getSeverityLevel(numericValue, type);
@@ -120,11 +124,6 @@ export function SensorCard({
             <span className={textColor}>
               {title === "Heat Index" ? rawTemperature : value}
             </span>
-            {title === "Heat Index" && (
-              <span className={`${textColor} text-base ml-2 text-gray-400`}>
-                (Feels like: {value})
-              </span>
-            )}
           </p>
           <div>
             <p className={`mt-2 text-2xl ${textColor}`}>{severityLabel}</p>

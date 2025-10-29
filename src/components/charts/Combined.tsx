@@ -30,6 +30,7 @@ interface ChartDataPoint {
   aqi: number;
   uv: number;
   heat: number;
+  temperature?: number; // Add temperature to interface
 }
 
 export function Combined({ data }: { data: ChartDataPoint[] }) {
@@ -41,10 +42,10 @@ export function Combined({ data }: { data: ChartDataPoint[] }) {
   // Data comes newest-first;  oldest -> newest
   const latestChrono = [...data].slice(0, dataToShow);
 
-  // Format heat to one decimal
+  // Format heat to one decimal, prioritizing temperature over heat
   const formattedData = latestChrono.map((d) => ({
     ...d,
-    heat: parseFloat(d.heat.toFixed(1)),
+    heat: parseFloat((d.temperature ?? d.heat).toFixed(1)),
   }));
 
   // time labels
@@ -78,7 +79,7 @@ export function Combined({ data }: { data: ChartDataPoint[] }) {
   const latestHeat = lastPoint?.heat ?? null;
 
   return (
-    <div className="bg-auto rounded-3xl shadow-xl  ">
+    <div className="bg-auto rounded-3xl shadow-xl">
       <div className="w-full h-[300px] border-[rgba(56,189,248,0.18)] border-2 rounded-2xl overflow-hidden p-4">
         <div className="w-full overflow-x-auto lg:overflow-x-hidden">
           <div className="min-w-[900px] lg:min-w-0">
@@ -87,7 +88,6 @@ export function Combined({ data }: { data: ChartDataPoint[] }) {
                 data={timeFormattedData}
                 margin={{ top: 40, right: 30, left: 0, bottom: 10 }}
               >
-                {/* Gradient definition for area fill */}
                 <defs>
                   <linearGradient id="aqi-fill" x1="0" y1="0" x2="0" y2="1">
                     <stop offset="5%" stopColor="#ef4444" stopOpacity={0.8} />
@@ -143,7 +143,7 @@ export function Combined({ data }: { data: ChartDataPoint[] }) {
                 <Area
                   type="monotone"
                   dataKey="heat"
-                  name="Heat Index (°C)"
+                  name="Temperature (°C)"
                   stroke="#FCB53B"
                   fillOpacity={1}
                   fill="url(#heat-fill)"

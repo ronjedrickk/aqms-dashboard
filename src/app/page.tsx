@@ -13,7 +13,7 @@ import { useNotifications } from "@/hooks/useNotifications";
 // Firestore
 import { collection, getDocs } from "firebase/firestore";
 import { db } from "@/lib/firebase";
-import type { SeverityLevel } from "@/types/severity";
+import { severityColors, Severity } from "@/lib/severitycolors";
 
 interface RecommendationData {
   min: number;
@@ -63,17 +63,16 @@ const getSeverityColor = (severity: string) => {
     case "caution":
       return "text-green-500";
     case "moderate":
-    case "medium":
+    case "caution":
     case "extreme caution":
       return "text-[#FFD93D]";
     case "high":
-    case "unhealthy for sensitive groups":
+    case "extreme caution":
     case "danger":
       return "text-[#FF9A00]";
     case "extreme":
-    case "unhealthy":
-    case "extreme danger":
-    case "critical":
+    case "danger":
+    case "danger":
       return "text-[#E62727]";
     default:
       return "text-gray-500";
@@ -125,6 +124,33 @@ function getBgColorFromSeverity(severity: string): string {
   }
 }
 
+function normalizeSeverity(raw: string, type: string): string {
+  const s = (raw || "").toLowerCase();
+
+  if (type === "Heat") {
+    // Match exact ranges from your Firestore
+    if (s.includes("low") || s.includes("0-27")) return "low";
+    if (s.includes("caution") || s.includes("28-32")) return "moderate";
+    if (s.includes("extreme caution") || s.includes("33-39")) return "high";
+    if (s.includes("danger") || s.includes("40-100")) return "extreme";
+    return s;
+  }
+  if (s === "low" || s.includes("good")) return "low";
+  if (s.includes("moderate")) return "moderate";
+  // map common AQI labels to "high"
+  if (
+    s.includes("high") ||
+    s.includes("unhealthy for sensitive") ||
+    s.includes("unhealthy for sensitive groups")
+  )
+    return "high";
+  // map broader "unhealthy" / "unhealthy for all" / "unhealthy" -> extreme
+  if (s.includes("unhealthy")) return "extreme";
+  if (s.includes("critical") || s.includes("hazard") || s.includes("hazardous"))
+    return "critical";
+  return s; // fallback
+}
+
 export default function Page() {
   const now = useClock();
   const [mounted, setMounted] = useState(false);
@@ -150,9 +176,9 @@ export default function Page() {
   const [uvRec, setUvRec] = useState("");
 
   // per-sensor severities
-  const [aqiSeverity, setAqiSeverity] = useState<SeverityLevel>("low");
-  const [uvSeverity, setUvSeverity] = useState<SeverityLevel>("low");
-  const [heatSeverity, setHeatSeverity] = useState<SeverityLevel>("low");
+  const [aqiSeverity, setAqiSeverity] = useState<Severity>("low");
+  const [uvSeverity, setUvSeverity] = useState<Severity>("low");
+  const [heatSeverity, setHeatSeverity] = useState<Severity>("low");
 
   // Google API data
   const [googleData, setGoogleData] = useState<GoogleData | null>(null);
@@ -176,7 +202,7 @@ export default function Page() {
 
     (async () => {
       const categories = ["AQI", "Heat", "UV"] as const;
-      let maxSeverity: SeverityLevel = "low";
+      let maxSeverity: Severity = "low";
 
       for (const cat of categories) {
         const snap = await getDocs(
@@ -185,11 +211,12 @@ export default function Page() {
 
         snap.forEach((docSnap) => {
           const data = docSnap.data() as RecommendationData;
+          // Use temperature instead of heat for the Heat category
           const value =
             cat === "AQI"
               ? latest.aqi
               : cat === "Heat"
-              ? latest.heat
+              ? latest.temperature || 0 // Use temperature, fallback to 0 if undefined
               : latest.uv;
 
           if (value >= data.min && value <= data.max) {
@@ -197,7 +224,8 @@ export default function Page() {
             if (cat === "Heat") setHeatRec(data.recommendation);
             if (cat === "UV") setUvRec(data.recommendation);
 
-            const sev = data.severity.toLowerCase() as SeverityLevel;
+            const rawSeverity = data.severity;
+            const sev = normalizeSeverity(rawSeverity, cat) as Severity;
             if (cat === "AQI") setAqiSeverity(sev);
             if (cat === "Heat") setHeatSeverity(sev);
             if (cat === "UV") setUvSeverity(sev);
@@ -361,7 +389,7 @@ export default function Page() {
                   <path d="M3 15a4 4 0 014-4h1a5 5 0 119 0h1a4 4 0 110 8H7a4 4 0 01-4-4z" />
                 </svg>
               }
-              severity={aqiSeverity as SeverityLevel}
+              severity={aqiSeverity as Severity}
               apiValue={googleData ? `${googleData.aqi} AQI` : "Loading..."}
               location={googleData?.locationName || "Unknown location"}
               source={googleData?.source || "Loading..."}
@@ -402,7 +430,7 @@ export default function Page() {
                   <path d="M12 1v2m0 18v2m11-11h-2M3 12H1m16.95-6.95l-1.41 1.41M6.46 17.54l-1.41 1.41M17.54 17.54l1.41 1.41M6.46 6.46L5.05 5.05" />
                 </svg>
               }
-              severity={uvSeverity as SeverityLevel}
+              severity={uvSeverity as Severity}
               apiValue={googleData ? `${googleData.uv} UV` : "Loading..."}
               location={googleData?.uvLocation || "Unknown location"}
               source={googleData?.uvSource || "Loading..."}
@@ -418,7 +446,10 @@ export default function Page() {
             {/* Heat */}
             <SensorCard
               title="Heat Index"
-              value={latest.heat ? `${latest.heat.toFixed(1)} °C` : "—"}
+              // Change this line in the Heat SensorCard props (around line 449)
+              value={
+                latest.temperature ? `${latest.temperature.toFixed(1)} °C` : "—"
+              }
               icon={
                 <svg
                   viewBox="0 0 24 24"
@@ -441,7 +472,7 @@ export default function Page() {
                   <path d="M14 14.76V5a2 2 0 10-4 0v9.76a4 4 0 104 0z" />
                 </svg>
               }
-              severity={heatSeverity as SeverityLevel}
+              severity={heatSeverity as Severity}
               apiValue={googleData ? `${googleData.heat} °C` : "Loading..."}
               location={googleData?.heatLocation || "Unknown location"}
               source={googleData?.heatSource || "Loading..."}
@@ -492,11 +523,11 @@ export default function Page() {
                     {latest.uv} UV
                   </span>
                   <span
-                    className={`ml-2 font-bold ${getSeverityColor(
-                      heatSeverity
-                    )}`}
+                    className={`ml-2 font-bold ${severityColors[heatSeverity].text}`}
                   >
-                    {latest.heat.toFixed(1)}°C
+                    {latest.temperature
+                      ? `${latest.temperature.toFixed(1)} °C`
+                      : "—"}
                   </span>
                 </span>
               )}

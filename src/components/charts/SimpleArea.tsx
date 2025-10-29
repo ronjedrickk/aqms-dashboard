@@ -30,13 +30,21 @@ export function SimpleArea({
   const decimalsByKey: Record<"aqi" | "uv" | "heat", number> = {
     aqi: 1,
     uv: 1,
-    heat: 2,
+    heat: 1, // show temperature with 1 decimal
   };
   const decimals = decimalsByKey[dataKey];
 
   // Format numeric values based on the active marker
   const formattedData: SensorRow[] = limitedData.map((d) => {
-    const v = d[dataKey];
+    // Use raw temperature for 'heat' series when available, otherwise fall back to heat value
+    const rawValue =
+      dataKey === "heat"
+        ? typeof (d as any).temperature === "number"
+          ? (d as any).temperature
+          : (d as any).heat
+        : (d as any)[dataKey];
+
+    const v = rawValue;
     const rounded =
       typeof v === "number" && Number.isFinite(v)
         ? parseFloat(v.toFixed(decimals))

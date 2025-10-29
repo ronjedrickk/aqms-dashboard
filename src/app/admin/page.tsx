@@ -67,16 +67,15 @@ const getSeverityColor = (severity: string) => {
       return "text-green-500";
     case "moderate":
     case "medium":
-    case "extreme caution":
+    case "caution":
       return "text-[#FFD93D]";
     case "high":
     case "unhealthy for sensitive groups":
-    case "danger":
+    case "extreme caution":
       return "text-[#FF9A00]";
     case "extreme":
     case "unhealthy":
-    case "extreme danger":
-    case "critical":
+    case "danger":
       return "text-[#E62727]";
     default:
       return "text-gray-500";
@@ -121,10 +120,37 @@ function getBgColorFromSeverity(severity: string): string {
     case "extreme":
       return "bg-[#E62727]";
     case "critical":
-      return "bg-black";
+      return "bg-[#E62727]";
     default:
       return "bg-gray-400";
   }
+}
+
+function normalizeSeverity(raw: string, type: string): string {
+  const s = (raw || "").toLowerCase();
+
+  if (type === "Heat") {
+    // Match exact ranges from your Firestore
+    if (s.includes("low") || s.includes("0-27")) return "low";
+    if (s.includes("caution") || s.includes("28-32")) return "moderate";
+    if (s.includes("extreme caution") || s.includes("33-39")) return "high";
+    if (s.includes("danger") || s.includes("40-100")) return "extreme";
+    return s;
+  }
+  if (s === "low" || s.includes("good")) return "low";
+  if (s.includes("moderate")) return "moderate";
+  // map common AQI labels to "high"
+  if (
+    s.includes("high") ||
+    s.includes("unhealthy for sensitive") ||
+    s.includes("unhealthy for sensitive groups")
+  )
+    return "high";
+  // map broader "unhealthy" / "unhealthy for all" / "unhealthy" -> extreme
+  if (s.includes("unhealthy")) return "extreme";
+  if (s.includes("critical") || s.includes("hazard") || s.includes("hazardous"))
+    return "critical";
+  return s; // fallback
 }
 
 export default function AdminPage() {
@@ -207,14 +233,15 @@ export default function AdminPage() {
             cat === "AQI"
               ? latest.aqi
               : cat === "Heat"
-              ? latest.heat
+              ? latest.temperature || 0
               : latest.uv;
 
           if (value >= data.min && value <= data.max) {
             messages.push(`${cat}: ${data.recommendation}`);
 
             // update per-sensor severity
-            const sev = data.severity.toLowerCase() as SeverityLevel;
+            const rawSeverity = data.severity;
+            const sev = normalizeSeverity(rawSeverity, cat) as SeverityLevel;
             if (cat === "AQI") setAqiSeverity(sev);
             if (cat === "Heat") setHeatSeverity(sev);
             if (cat === "UV") setUvSeverity(sev);
@@ -557,7 +584,7 @@ export default function AdminPage() {
                         heatSeverity
                       )}`}
                     >
-                      {latest.heat.toFixed(1)}°C
+                      {latest.temperature?.toFixed(1)}°C`
                     </span>
                   </span>
                 )}
