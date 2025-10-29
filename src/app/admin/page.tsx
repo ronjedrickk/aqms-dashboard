@@ -132,9 +132,9 @@ function normalizeSeverity(raw: string, type: string): string {
   if (type === "Heat") {
     // Match exact ranges from your Firestore
     if (s.includes("low") || s.includes("0-27")) return "low";
-    if (s.includes("caution") || s.includes("28-32")) return "moderate";
-    if (s.includes("extreme caution") || s.includes("33-39")) return "high";
-    if (s.includes("danger") || s.includes("40-100")) return "extreme";
+    if (s.includes("normal") || s.includes("28-32")) return "moderate";
+    if (s.includes("caution") || s.includes("33-39")) return "high";
+    if (s.includes("extreme danger") || s.includes("40-100")) return "extreme";
     return s;
   }
   if (s === "low" || s.includes("good")) return "low";

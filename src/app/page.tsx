@@ -60,19 +60,19 @@ const getSeverityColor = (severity: string) => {
   switch (severity.toLowerCase()) {
     case "low":
     case "good":
-    case "caution":
+    case "low":
       return "text-green-500";
     case "moderate":
     case "caution":
-    case "extreme caution":
+    case "normal":
       return "text-[#FFD93D]";
     case "high":
     case "extreme caution":
-    case "danger":
+    case "caution":
       return "text-[#FF9A00]";
     case "extreme":
     case "danger":
-    case "danger":
+    case "extreme danger":
       return "text-[#E62727]";
     default:
       return "text-gray-500";
@@ -130,9 +130,9 @@ function normalizeSeverity(raw: string, type: string): string {
   if (type === "Heat") {
     // Match exact ranges from your Firestore
     if (s.includes("low") || s.includes("0-27")) return "low";
-    if (s.includes("caution") || s.includes("28-32")) return "moderate";
-    if (s.includes("extreme caution") || s.includes("33-39")) return "high";
-    if (s.includes("danger") || s.includes("40-100")) return "extreme";
+    if (s.includes("normal") || s.includes("28-32")) return "moderate";
+    if (s.includes("caution") || s.includes("33-39")) return "high";
+    if (s.includes("extreme danger") || s.includes("40-100")) return "extreme";
     return s;
   }
   if (s === "low" || s.includes("good")) return "low";
@@ -523,7 +523,9 @@ export default function Page() {
                     {latest.uv} UV
                   </span>
                   <span
-                    className={`ml-2 font-bold ${severityColors[heatSeverity].text}`}
+                    className={`ml-2 font-bold ${getSeverityColor(
+                      heatSeverity
+                    )}`}
                   >
                     {latest.temperature
                       ? `${latest.temperature.toFixed(1)} °C`
