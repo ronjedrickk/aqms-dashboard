@@ -10,10 +10,10 @@ import CampusMap from "@/components/CampusMap";
 import { FaClock } from "react-icons/fa";
 import { useNotifications } from "@/hooks/useNotifications";
 
-// ✅ Firestore
+// Firestore
 import { collection, getDocs } from "firebase/firestore";
 import { db } from "@/lib/firebase";
-import type { SeverityLevel } from "@/types/severity";
+import { severityColors, Severity } from "@/lib/severitycolors";
 
 interface RecommendationData {
   min: number;
@@ -55,25 +55,24 @@ const locationDetails: Record<
   },
 };
 
-// 🔹 Utility: map severity to Tailwind colors
+// map severity to Tailwind colors
 const getSeverityColor = (severity: string) => {
   switch (severity.toLowerCase()) {
     case "low":
     case "good":
-    case "caution":
+    case "low":
       return "text-green-500";
     case "moderate":
-    case "medium":
-    case "extreme caution":
+    case "caution":
+    case "normal":
       return "text-[#FFD93D]";
     case "high":
-    case "unhealthy for sensitive groups":
-    case "danger":
+    case "extreme caution":
+    case "caution":
       return "text-[#FF9A00]";
     case "extreme":
-    case "unhealthy":
+    case "danger":
     case "extreme danger":
-    case "critical":
       return "text-[#E62727]";
     default:
       return "text-gray-500";
@@ -91,7 +90,7 @@ const severityRank: Record<string, number> = {
 // Rank severities in order
 const severityOrder = ["low", "moderate", "high", "extreme", "critical"];
 
-// Decide which severity is highest among AQI, UV, Heat
+// Decide which severity is highest
 function getHighestSeverity(severities: (string | undefined)[]): string {
   let highest = "low";
 
@@ -107,7 +106,7 @@ function getHighestSeverity(severities: (string | undefined)[]): string {
   return highest;
 }
 
-// Map severity → background color
+// severity background color
 function getBgColorFromSeverity(severity: string): string {
   switch (severity.toLowerCase()) {
     case "low":
@@ -125,6 +124,65 @@ function getBgColorFromSeverity(severity: string): string {
   }
 }
 
+// Add this function near your other utility functions at the top of the file
+function getSeverityLabel(severity: string): string {
+  switch (severity.toLowerCase()) {
+    case "low":
+      return "Good";
+    case "moderate":
+      return "Moderate";
+    case "high":
+      return "Unhealthy";
+    case "extreme":
+      return "Hazardous";
+    case "critical":
+      return "Critical";
+    default:
+      return "Unknown";
+  }
+}
+
+// Fix the normalizeSeverity function to handle numbers
+function normalizeSeverity(value: number | string, type: string): string {
+  if (typeof value === "string") return value;
+
+  switch (type) {
+    case "AQI":
+      if (value <= 50) return "low";
+      if (value <= 100) return "moderate";
+      if (value <= 150) return "high";
+      if (value <= 200) return "extreme";
+      return "critical";
+
+    case "UV":
+      if (value <= 2) return "low";
+      if (value <= 5) return "moderate";
+      if (value <= 7) return "high";
+      if (value <= 10) return "extreme";
+      return "critical";
+
+    case "Heat":
+      if (value <= 27) return "low";
+      if (value <= 32) return "moderate";
+      if (value <= 39) return "high";
+      if (value <= 51) return "extreme";
+      return "critical";
+
+    default:
+      return "low";
+  }
+}
+
+// First add this helper function near the other utility functions
+function getOtherLocations(activeLocation: LocationKey): LocationKey[] {
+  const allLocations: LocationKey[] = [
+    "Quadrangle",
+    "Falcon Bridge",
+    "SV Entrance / Parking Lot",
+  ];
+  return allLocations.filter((loc) => loc !== activeLocation);
+}
+
 export default function Page() {
   const now = useClock();
   const [mounted, setMounted] = useState(false);
@@ -137,24 +195,24 @@ export default function Page() {
     "SV Entrance / Parking Lot"
   );
 
-  // 🔔 Notification hook
+  //  Notification hook
   const { permission, requestPermission } = useNotifications();
   const [showPrompt, setShowPrompt] = useState(true);
 
-  // ✅ unified hook: latest + rows
+  // unified hook: latest + rows
   const { latest, rows } = useSensorData(activeLocation, 8);
 
-  // ✅ per-category recommendations
+  //  per-category recommendations
   const [aqiRec, setAqiRec] = useState("");
   const [heatRec, setHeatRec] = useState("");
   const [uvRec, setUvRec] = useState("");
 
-  // ✅ per-sensor severities
-  const [aqiSeverity, setAqiSeverity] = useState<SeverityLevel>("low");
-  const [uvSeverity, setUvSeverity] = useState<SeverityLevel>("low");
-  const [heatSeverity, setHeatSeverity] = useState<SeverityLevel>("low");
+  // per-sensor severities
+  const [aqiSeverity, setAqiSeverity] = useState<Severity>("low");
+  const [uvSeverity, setUvSeverity] = useState<Severity>("low");
+  const [heatSeverity, setHeatSeverity] = useState<Severity>("low");
 
-  // ✅ Google API data
+  // Google API data
   const [googleData, setGoogleData] = useState<GoogleData | null>(null);
 
   useEffect(() => {
@@ -170,13 +228,13 @@ export default function Page() {
     fetchGoogle();
   }, []);
 
-  // 🔥 Get overall recommendation + per-sensor severities
+  //  Get overall recommendation + per-sensor severities
   useEffect(() => {
     if (!latest) return;
 
     (async () => {
       const categories = ["AQI", "Heat", "UV"] as const;
-      let maxSeverity: SeverityLevel = "low";
+      let maxSeverity: Severity = "low";
 
       for (const cat of categories) {
         const snap = await getDocs(
@@ -185,11 +243,12 @@ export default function Page() {
 
         snap.forEach((docSnap) => {
           const data = docSnap.data() as RecommendationData;
+          // Use temperature instead of heat for the Heat category
           const value =
             cat === "AQI"
               ? latest.aqi
               : cat === "Heat"
-              ? latest.heat
+              ? latest.temperature || 0 // Use temperature, fallback to 0 if undefined
               : latest.uv;
 
           if (value >= data.min && value <= data.max) {
@@ -197,7 +256,8 @@ export default function Page() {
             if (cat === "Heat") setHeatRec(data.recommendation);
             if (cat === "UV") setUvRec(data.recommendation);
 
-            const sev = data.severity.toLowerCase() as SeverityLevel;
+            const rawSeverity = data.severity;
+            const sev = normalizeSeverity(rawSeverity, cat) as Severity;
             if (cat === "AQI") setAqiSeverity(sev);
             if (cat === "Heat") setHeatSeverity(sev);
             if (cat === "UV") setUvSeverity(sev);
@@ -210,6 +270,25 @@ export default function Page() {
       }
     })();
   }, [latest]);
+
+  // First, add these hooks to fetch data for all locations
+  const { latest: quadData } = useSensorData("Quadrangle", 8);
+  const { latest: bridgeData } = useSensorData("Falcon Bridge", 8);
+  const { latest: entranceData } = useSensorData(
+    "SV Entrance / Parking Lot",
+    8
+  );
+
+  // First, verify the UV data is being properly fetched
+  useEffect(() => {
+    if (latest) {
+      console.log("UV Data:", {
+        quad: quadData?.uv,
+        bridge: bridgeData?.uv,
+        entrance: entranceData?.uv,
+      });
+    }
+  }, [latest, quadData, bridgeData, entranceData]);
 
   return (
     <main
@@ -350,22 +429,53 @@ export default function Page() {
                   <path d="M3 15a4 4 0 014-4h1a5 5 0 119 0h1a4 4 0 110 8H7a4 4 0 01-4-4z" />
                 </svg>
               }
-              iconsapiValue={
-                <svg
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="#ffeb3b"
-                  strokeWidth="2"
-                  className="w-4 h-4 opacity-90 flex-shrink-0"
-                >
-                  <path d="M3 15a4 4 0 014-4h1a5 5 0 119 0h1a4 4 0 110 8H7a4 4 0 01-4-4z" />
-                </svg>
-              }
-              severity={aqiSeverity as SeverityLevel}
-              apiValue={googleData ? `${googleData.aqi} AQI` : "Loading..."}
-              location={googleData?.locationName || "Unknown location"}
-              source={googleData?.source || "Loading..."}
+              severity={aqiSeverity as Severity}
             >
+              {/* AQI Card Grid */}
+              <div className="grid grid-cols-2 gap-4 mb-4">
+                {getOtherLocations(activeLocation).map((location) => {
+                  const data =
+                    location === "Quadrangle"
+                      ? quadData
+                      : location === "Falcon Bridge"
+                      ? bridgeData
+                      : entranceData;
+
+                  const colorClass =
+                    location === "Quadrangle"
+                      ? "text-yellow-400"
+                      : location === "Falcon Bridge"
+                      ? "text-blue-400"
+                      : "text-green-400";
+
+                  return (
+                    <div
+                      key={location}
+                      className="flex flex-col items-center p-3 rounded-lg bg-opacity-10 bg-white"
+                    >
+                      <span className={`${colorClass} text-sm mb-1`}>
+                        {location}
+                      </span>
+                      <span
+                        className={`text-2xl font-bold ${getSeverityColor(
+                          normalizeSeverity(data?.aqi || 0, "AQI")
+                        )}`}
+                      >
+                        {data?.aqi || "—"} AQI
+                      </span>
+                      <span
+                        className={`text-sm ${getSeverityColor(
+                          normalizeSeverity(data?.aqi || 0, "AQI")
+                        )}`}
+                      >
+                        {getSeverityLabel(
+                          normalizeSeverity(data?.aqi || 0, "AQI")
+                        )}
+                      </span>
+                    </div>
+                  );
+                })}
+              </div>
               <SimpleArea
                 data={rows}
                 dataKey="aqi"
@@ -377,7 +487,7 @@ export default function Page() {
             {/* UV */}
             <SensorCard
               title="UV Intensity"
-              value={latest ? `${latest.uv} UV` : "Loading..."}
+              value={latest ? `${latest.uv ?? "—"} UV` : "Loading..."}
               icon={
                 <svg
                   viewBox="0 0 24 24"
@@ -390,23 +500,55 @@ export default function Page() {
                   <path d="M12 1v2m0 18v2m11-11h-2M3 12H1m16.95-6.95l-1.41 1.41M6.46 17.54l-1.41 1.41M17.54 17.54l1.41 1.41M6.46 6.46L5.05 5.05" />
                 </svg>
               }
-              iconsapiValue={
-                <svg
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="#a78bfa"
-                  strokeWidth="2"
-                  className="w-6 h-6 opacity-90 flex-shrink-0"
-                >
-                  <circle cx="12" cy="12" r="5" />
-                  <path d="M12 1v2m0 18v2m11-11h-2M3 12H1m16.95-6.95l-1.41 1.41M6.46 17.54l-1.41 1.41M17.54 17.54l1.41 1.41M6.46 6.46L5.05 5.05" />
-                </svg>
-              }
-              severity={uvSeverity as SeverityLevel}
-              apiValue={googleData ? `${googleData.uv} UV` : "Loading..."}
-              location={googleData?.uvLocation || "Unknown location"}
-              source={googleData?.uvSource || "Loading..."}
+              severity={uvSeverity as Severity}
             >
+              {/* UV Card Grid */}
+              <div className="grid grid-cols-2 gap-4 mb-4">
+                {getOtherLocations(activeLocation).map((location) => {
+                  const data =
+                    location === "Quadrangle"
+                      ? quadData
+                      : location === "Falcon Bridge"
+                      ? bridgeData
+                      : entranceData;
+
+                  const colorClass =
+                    location === "Quadrangle"
+                      ? "text-yellow-400"
+                      : location === "Falcon Bridge"
+                      ? "text-blue-400"
+                      : "text-green-400";
+
+                  return (
+                    <div
+                      key={location}
+                      className="flex flex-col items-center p-3 rounded-lg bg-opacity-10 bg-white"
+                    >
+                      <span className={`${colorClass} text-sm mb-1`}>
+                        {location}
+                      </span>
+                      <span
+                        className={`text-2xl font-bold ${getSeverityColor(
+                          normalizeSeverity(Number(data?.uv) || 0, "UV")
+                        )}`}
+                      >
+                        {data?.uv !== undefined && data?.uv !== null
+                          ? `${data.uv.toFixed(1)} UV`
+                          : "—"}
+                      </span>
+                      <span
+                        className={`text-sm ${getSeverityColor(
+                          normalizeSeverity(Number(data?.uv) || 0, "UV")
+                        )}`}
+                      >
+                        {getSeverityLabel(
+                          normalizeSeverity(Number(data?.uv) || 0, "UV")
+                        )}
+                      </span>
+                    </div>
+                  );
+                })}
+              </div>
               <SimpleArea
                 data={rows}
                 dataKey="uv"
@@ -418,7 +560,10 @@ export default function Page() {
             {/* Heat */}
             <SensorCard
               title="Heat Index"
-              value={latest.heat ? `${latest.heat.toFixed(1)} °C` : "—"}
+              // Change this line in the Heat SensorCard props (around line 449)
+              value={
+                latest.temperature ? `${latest.temperature.toFixed(1)} °C` : "—"
+              }
               icon={
                 <svg
                   viewBox="0 0 24 24"
@@ -430,22 +575,61 @@ export default function Page() {
                   <path d="M14 14.76V5a2 2 0 10-4 0v9.76a4 4 0 104 0z" />
                 </svg>
               }
-              iconsapiValue={
-                <svg
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="#ff9800"
-                  strokeWidth="2"
-                  className="w-4 h-4 opacity-90 flex-shrink-0"
-                >
-                  <path d="M14 14.76V5a2 2 0 10-4 0v9.76a4 4 0 104 0z" />
-                </svg>
-              }
-              severity={heatSeverity as SeverityLevel}
+              severity={heatSeverity as Severity}
               apiValue={googleData ? `${googleData.heat} °C` : "Loading..."}
               location={googleData?.heatLocation || "Unknown location"}
               source={googleData?.heatSource || "Loading..."}
+              rawTemperature={
+                latest.temperature ? `${latest.temperature.toFixed(1)} °C` : "—"
+              }
             >
+              {/* Heat Card Grid */}
+              <div className="grid grid-cols-2 gap-4 mb-4">
+                {getOtherLocations(activeLocation).map((location) => {
+                  const data =
+                    location === "Quadrangle"
+                      ? quadData
+                      : location === "Falcon Bridge"
+                      ? bridgeData
+                      : entranceData;
+
+                  const colorClass =
+                    location === "Quadrangle"
+                      ? "text-yellow-400"
+                      : location === "Falcon Bridge"
+                      ? "text-blue-400"
+                      : "text-green-400";
+
+                  return (
+                    <div
+                      key={location}
+                      className="flex flex-col items-center p-3 rounded-lg bg-opacity-10 bg-white"
+                    >
+                      <span className={`${colorClass} text-sm mb-1`}>
+                        {location}
+                      </span>
+                      <span
+                        className={`text-2xl font-bold ${getSeverityColor(
+                          normalizeSeverity(data?.temperature || 0, "Heat")
+                        )}`}
+                      >
+                        {data?.temperature
+                          ? `${data.temperature.toFixed(1)}°C`
+                          : "—"}
+                      </span>
+                      <span
+                        className={`text-sm ${getSeverityColor(
+                          normalizeSeverity(data?.temperature || 0, "Heat")
+                        )}`}
+                      >
+                        {getSeverityLabel(
+                          normalizeSeverity(data?.temperature || 0, "Heat")
+                        )}
+                      </span>
+                    </div>
+                  );
+                })}
+              </div>
               <SimpleArea
                 data={rows}
                 dataKey="heat"
@@ -493,7 +677,9 @@ export default function Page() {
                       heatSeverity
                     )}`}
                   >
-                    {latest.heat.toFixed(1)}°C
+                    {latest.temperature
+                      ? `${latest.temperature.toFixed(1)} °C`
+                      : "—"}
                   </span>
                 </span>
               )}

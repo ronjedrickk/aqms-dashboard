@@ -3,20 +3,18 @@ import React from "react";
 import type { SeverityLevel } from "@/types/severity";
 
 type ReadingType = "UV" | "Heat" | "AQI";
+type LocationType =
+  | "Quadrangle"
+  | "Falcon Bridge"
+  | "SV Entrance / Parking Lot";
 
-export function SensorCard({
-  title,
-  value,
-  icon,
-  iconsapiValue,
-  severity,
-  apiValue,
-  location,
-  source,
-  children,
-  rawTemperature,
-}: {
+// Keep your existing LocationType definition
+// type LocationType = "Quadrangle" | "Falcon Bridge" | "SV Entrance / Parking Lot";
+
+// Update the SensorCardProps interface to use LocationType
+interface SensorCardProps {
   title: string;
+  subtitle?: string; // Change this back to string to accept any string value
   value: string;
   icon: React.ReactNode;
   iconsapiValue?: React.ReactNode;
@@ -26,7 +24,28 @@ export function SensorCard({
   source?: string;
   children?: React.ReactNode;
   rawTemperature?: string;
-}) {
+}
+
+// Update the locationColors to accept any string key
+const locationColors: Record<string, string> = {
+  Quadrangle: "text-[#7BD3EA]",
+  "Falcon Bridge": "text-blue-400",
+  "SV Entrance / Parking Lot": "text-green-400",
+};
+
+export function SensorCard({
+  title,
+  subtitle,
+  value,
+  icon,
+  iconsapiValue,
+  severity,
+  apiValue,
+  location,
+  source,
+  children,
+  rawTemperature,
+}: SensorCardProps) {
   // Add severity usage
   const severityClass = severity ? `severity-${severity}` : "";
 
@@ -52,7 +71,7 @@ export function SensorCard({
         if (value <= 2) return "low";
         if (value <= 5) return "moderate";
         if (value <= 7) return "high";
-        if (value <= 11) return "extreme";
+        if (value <= 12) return "extreme";
         return "critical";
       case "Heat":
         if (value <= 27) return "low";
@@ -102,7 +121,7 @@ export function SensorCard({
     low: "text-green-500",
     moderate: "text-[#FFD93D]",
     high: "text-[#FF9A00]",
-    extreme: "text-[#E62727]",
+    extreme: "text-[#FF3D00]",
     critical: "text-[#E62727]",
   };
 
@@ -117,9 +136,16 @@ export function SensorCard({
       <div className="rounded-lg p-2 sm:p-4 flex items-center gap-4">
         <div className="sm:text-8xl text-xl">{icon}</div>
         <div>
-          <h2 className="text-lg sm:text-2xl font-semibold text-white">
-            {title === "Heat Index" ? "Temperature" : title}
-          </h2>
+          <div className="flex flex-col items-start">
+            <h2 className="text-lg sm:text-2xl font-semibold text-white">
+              {title === "Heat Index" ? "Temperature" : title}
+            </h2>
+            {subtitle && (
+              <span className={`text-xl ${locationColors[subtitle]} mt-1`}>
+                {subtitle}
+              </span>
+            )}
+          </div>
           <p className="text-xl sm:text-2xl mt-2 font-bold">
             <span className={textColor}>
               {title === "Heat Index" ? rawTemperature : value}
