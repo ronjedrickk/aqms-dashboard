@@ -16,6 +16,8 @@ import {
   getDoc,
   getDocs,
 } from "firebase/firestore";
+import jsPDF from "jspdf";
+import autoTable from "jspdf-autotable";
 
 // Auth + Firestore
 import { auth, db } from "@/lib/firebase";
@@ -183,6 +185,43 @@ export default function AdminUVPage() {
   );
 
   const [showRaw, setShowRaw] = useState(false);
+
+  const downloadPDF = () => {
+    const doc = new jsPDF();
+
+    // Add title
+    doc.setFontSize(16);
+    doc.text(
+      `UV Index Report - ${locationDetails[selectedLocation].title}`,
+      14,
+      15
+    );
+
+    // Add date and time
+    doc.setFontSize(12);
+    doc.text(`Date: ${selectedDate}`, 14, 25);
+    doc.text(`Generated: ${new Date().toLocaleString()}`, 14, 32);
+
+    // Prepare table data
+    const tableData = enhanced.map((row) => [
+      row.timeLabel,
+      Number.isFinite(row.uv) ? (row.uv as number).toFixed(1) : "-",
+      row.category,
+    ]);
+
+    // Generate table
+    autoTable(doc, {
+      head: [["Time", "UV Index", "Category"]],
+      body: tableData,
+      startY: 40,
+      styles: { fontSize: 9 },
+      headStyles: { fillColor: [41, 128, 185] },
+      alternateRowStyles: { fillColor: [240, 245, 255] },
+    });
+
+    // Save PDF
+    doc.save(`uv-index-${selectedLocation}-${selectedDate}.pdf`);
+  };
 
   return (
     <div className="flex min-h-screen bg-[#0a1f44] text-white font-['Inter']">
@@ -381,6 +420,14 @@ export default function AdminUVPage() {
                 className="text-xs border border-gray-300 rounded px-2 py-1 hover:bg-[#1d3557] hover:text-[#38bdf8]"
               >
                 {showRaw ? "Hide raw" : "Show raw"}
+              </button>
+              {/* Download PDF button */}
+              <button
+                type="button"
+                onClick={downloadPDF}
+                className="text-xs bg-[#38bdf8] text-black rounded px-3 py-1 hover:bg-[#1d3557] transition-all"
+              >
+                Download PDF
               </button>
             </div>
           </div>

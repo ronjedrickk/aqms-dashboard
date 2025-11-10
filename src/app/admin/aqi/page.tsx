@@ -16,6 +16,8 @@ import {
   doc,
   getDocs,
 } from "firebase/firestore";
+import jsPDF from "jspdf";
+import autoTable from "jspdf-autotable";
 
 // Auth + Firestore
 import { auth, db } from "@/lib/firebase";
@@ -194,6 +196,43 @@ export default function AdminAQIPage() {
   );
 
   const [showRaw, setShowRaw] = useState(false);
+
+  const downloadPDF = () => {
+    const doc = new jsPDF();
+
+    // Add title
+    doc.setFontSize(16);
+    doc.text(
+      `Air Quality Report - ${locationDetails[selectedLocation].title}`,
+      14,
+      15
+    );
+
+    // Add date and time
+    doc.setFontSize(12);
+    doc.text(`Date: ${selectedDate}`, 14, 25);
+    doc.text(`Generated: ${new Date().toLocaleString()}`, 14, 32);
+
+    // Prepare table data
+    const tableData = enhanced.map((row) => [
+      row.timeLabel,
+      Number.isFinite(row.aqi) ? (row.aqi as number).toFixed(1) : "-",
+      row.category,
+    ]);
+
+    // Generate table
+    autoTable(doc, {
+      head: [["Time", "PM2.5 (µg/m³)", "Category"]],
+      body: tableData,
+      startY: 40,
+      styles: { fontSize: 9 },
+      headStyles: { fillColor: [41, 128, 185] },
+      alternateRowStyles: { fillColor: [240, 245, 255] },
+    });
+
+    // Save PDF
+    doc.save(`air-quality-${selectedLocation}-${selectedDate}.pdf`);
+  };
 
   return (
     <div className="flex min-h-screen bg-[#0a1f44] text-white font-['Inter']">
@@ -393,6 +432,22 @@ export default function AdminAQIPage() {
               >
                 {showRaw ? "Hide raw" : "Show raw"}
               </button>
+              <button
+                type="button"
+                onClick={downloadPDF}
+                className="text-xs bg-[#38bdf8] text-black rounded px-3 py-1 hover:bg-[#1d3557] transition-all"
+              >
+                {/*<svg
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  className="w-4 h-4"
+                  strokeWidth="2"
+                >
+                  <path d="M12 3v13m0 0l-4-4m4 4l4-4M3 17v4h18v-4" />
+                </svg> */}
+                Download PDF
+              </button>
             </div>
           </div>
 
@@ -452,6 +507,28 @@ export default function AdminAQIPage() {
                   ))}
               </tbody>
             </table>
+          </div>
+        </div>
+
+        {/* Legend */}
+        <div className="mt-4 p-4 text-sm text-white mx-5 flex flex-items-center">
+          <div className="flex flex-wrap gap-4">
+            <div className="flex items-center">
+              <span className="w-4 h-4 bg-green-500 inline-block mr-2 rounded"></span>
+              Safe: ≤ 50
+            </div>
+            <div className="flex items-center">
+              <span className="w-4 h-4 bg-yellow-300 inline-block mr-2 rounded"></span>
+              Caution: &gt; 100
+            </div>
+            <div className="flex items-center">
+              <span className="w-4 h-4 bg-yellow-500 inline-block mr-2 rounded"></span>
+              Extreme Caution: &gt; 150
+            </div>
+            <div className="flex items-center">
+              <span className="w-4 h-4 bg-red-500 inline-block mr-2 rounded"></span>
+              Danger: &gt; 200
+            </div>
           </div>
         </div>
       </div>

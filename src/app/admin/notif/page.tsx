@@ -29,13 +29,13 @@ export type LocationKey =
   | "Falcon Bridge"
   | "SV Entrance / Parking Lot";
 
+// Update the SensorRow type
 export type SensorRow = {
   timeLabel: string;
   aqi: number;
   uv: number;
-  heat: number;
-  temperature?: number;
-  humidity?: number;
+  temperature: number | null;
+  humidity: number | null;
 };
 
 const collectionMap: Record<LocationKey, string> = {
@@ -67,24 +67,6 @@ function getHighestSeverity(severities: (string | undefined)[]): string {
   return highest;
 }
 
-// Compute heat index in °C
-function heatIndexCelsius(tempC?: number | null, rh?: number | null) {
-  if (tempC == null || rh == null) return tempC ?? 0;
-  const T = (tempC * 9) / 5 + 32; // C → F
-  const R = rh;
-  const HI =
-    -42.379 +
-    2.04901523 * T +
-    10.14333127 * R -
-    0.22475541 * T * R -
-    0.00683783 * T * T -
-    0.05481717 * R * R +
-    0.00122874 * T * T * R +
-    0.00085282 * T * R * R -
-    0.00000199 * T * T * R * R;
-  return ((HI - 32) * 5) / 9;
-}
-
 // bg color
 function getBgColorFromSeverity(severity: string): string {
   switch (severity.toLowerCase()) {
@@ -103,26 +85,25 @@ function getBgColorFromSeverity(severity: string): string {
   }
 }
 
-// text color
+// map severity to Tailwind colors
 const getSeverityColor = (severity: string) => {
   switch (severity.toLowerCase()) {
     case "low":
     case "good":
-    case "caution":
       return "text-green-500";
     case "moderate":
-    case "medium":
-    case "extreme caution":
+    case "caution":
+    case "normal":
       return "text-[#FFD93D]";
     case "high":
-    case "unhealthy for sensitive groups":
-    case "danger":
+    case "caution":
       return "text-[#FF9A00]";
     case "extreme":
-    case "unhealthy":
     case "extreme danger":
+    case "unhealthy":
+      return "text-[#FF3D00]";
     case "critical":
-      return "text-[#E62727]";
+      return "text-purple-600";
     default:
       return "text-gray-500";
   }
@@ -134,7 +115,6 @@ interface SensorDocument {
   uv_index: string | number;
   temperature: string | number;
   humidity: string | number;
-  heat_index?: string | number;
 }
 
 interface ApiError extends Error {
@@ -284,20 +264,26 @@ export default function AdminNotifPage() {
     const unsub = onSnapshot(
       qRef,
       (snap) => {
+        // Update the data mapping in useEffect
         const mapped: SensorRow[] = snap.docs.map((doc) => {
           const d = doc.data() as SensorDocument;
           const date = d?.created_at?.toDate?.() ?? new Date();
 
-          const tempC = d?.temperature != null ? Number(d.temperature) : null;
-          const rh = d?.humidity != null ? Number(d.humidity) : null;
-
           return {
             timeLabel: date.toLocaleTimeString(),
-            aqi: d?.pm2_5 != null ? Number(d.pm2_5) : 0,
-            uv: d?.uv_index != null ? Number(d.uv_index) : 0,
-            heat: heatIndexCelsius(tempC, rh),
-            temperature: tempC ?? undefined,
-            humidity: rh ?? undefined,
+            aqi: d?.pm2_5 != null ? Number(parseFloat(d.pm2_5.toString())) : 0,
+            uv:
+              d?.uv_index != null
+                ? Number(parseFloat(d.uv_index.toString()))
+                : 0,
+            temperature:
+              d?.temperature != null
+                ? Number(parseFloat(d.temperature.toString()))
+                : null,
+            humidity:
+              d?.humidity != null
+                ? Number(parseFloat(d.humidity.toString()))
+                : null,
           };
         });
 
@@ -341,35 +327,33 @@ export default function AdminNotifPage() {
         uvSev = "low",
         heatSev = "low";
 
-      // Query thresholds
+      // In the recommendation useEffect, modify the value assignment and condition check:
       for (const cat of ["AQI", "UV", "Heat"]) {
         const snap = await getDocs(
           collection(db, "categories", cat, "thresholds")
         );
         snap.forEach((docSnap) => {
           const { min, max, recommendation, severity } = docSnap.data();
+
+          // Safely get the value with null check
           const value =
             cat === "AQI"
               ? latest.aqi
               : cat === "UV"
               ? latest.uv
-              : latest.heat ?? latest.temperature;
+              : latest.temperature ?? null; // Use nullish coalescing for temperature
 
-          if (value >= min && value <= max) {
-            // Display raw temperature for "Heat"
+          // Only process if value is not null
+          if (value !== null && value >= min && value <= max) {
             let displayValue =
               cat === "Heat"
-                ? `${latest.temperature?.toFixed(1)} °C`
+                ? latest.temperature !== null
+                  ? `${latest.temperature.toFixed(1)} °C`
+                  : "N/A"
                 : value.toFixed(1);
 
             messages.push(
-              `${
-                metricIcons[cat]
-              } ${cat}: ${recommendation} (Current: ${displayValue}${
-                cat === "Heat"
-                  ? `, Feels like: ${latest.heat?.toFixed(1)} °C`
-                  : ""
-              })`
+              `${metricIcons[cat]} ${cat}: ${recommendation} (Current: ${displayValue})`
             );
 
             if (cat === "AQI") aqiSev = severity.toLowerCase();
@@ -396,8 +380,9 @@ export default function AdminNotifPage() {
         } = docSnap.data();
 
         if (
-          latest.heat >= heat_min &&
-          latest.heat <= heat_max &&
+          latest.temperature !== null && // Add null check for temperature
+          latest.temperature >= heat_min &&
+          latest.temperature <= heat_max &&
           latest.uv >= uv_min &&
           latest.uv <= uv_max &&
           latest.aqi >= aqi_min &&
@@ -705,9 +690,6 @@ export default function AdminNotifPage() {
           <Metric
             label="Temperature"
             value={latest ? `${latest.temperature?.toFixed(1)} °C` : "-"}
-            subValue={
-              latest ? `(Feels like: ${latest.heat.toFixed(1)} °C)` : ""
-            }
             color={getSeverityColor(heatSeverity)}
             icon={
               <svg

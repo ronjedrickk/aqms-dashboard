@@ -534,6 +534,9 @@ export default function AdminPage() {
                   </svg>
                 }
                 severity={aqiSeverity as Severity}
+                apiValue={googleData ? `${googleData.aqi} AQI` : "Loading..."}
+                location={googleData?.locationName || "Unknown location"}
+                source={googleData?.source || "Loading..."}
               >
                 {/* AQI Card Grid */}
                 <div className="grid grid-cols-2 gap-4 mb-4">
@@ -606,6 +609,9 @@ export default function AdminPage() {
                   </svg>
                 }
                 severity={uvSeverity as Severity}
+                apiValue={googleData ? `${googleData.uv} UV` : "Loading..."}
+                location={googleData?.uvLocation || "Unknown location"}
+                source={googleData?.uvSource || "Loading..."}
               >
                 {/* UV Card Grid */}
                 <div className="grid grid-cols-2 gap-4 mb-4">
