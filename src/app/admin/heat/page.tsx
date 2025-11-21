@@ -489,7 +489,6 @@ export default function AdminHeatPage() {
                   <th className="px-4 py-2 text-left">Time</th>
                   <th className="px-4 py-2 text-right">Temperature (°C)</th>
                   <th className="px-4 py-2 text-right">Humidity (%)</th>
-                  <th className="px-4 py-2 text-right">Heat Index (°C)</th>
                   <th className="px-4 py-2 text-center">Category</th>
                 </tr>
               </thead>
@@ -527,9 +526,6 @@ export default function AdminHeatPage() {
                         {row.humidity !== undefined
                           ? row.humidity.toFixed(1)
                           : "-"}
-                      </td>
-                      <td className="px-4 py-2 text-right">
-                        {Number.isFinite(row.heat) ? row.heat.toFixed(1) : "-"}
                       </td>
                       <td className="px-4 py-2 text-center">
                         <span className={`font-semibold ${row.colorClass}`}>

@@ -145,7 +145,7 @@ function normalizeSeverity(raw: string | number, type: string): string {
   // If raw is a number, handle numeric ranges directly
   if (typeof raw === "number") {
     if (type === "Heat") {
-      if (raw <= 27) return "low";
+      if (raw <= 27.5) return "low";
       if (raw <= 32) return "moderate"; // Changed from "normal"
       if (raw <= 39) return "high"; // Changed from "caution"
       if (raw <= 51) return "extreme";

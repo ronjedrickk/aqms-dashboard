@@ -3,14 +3,6 @@ import { adminDB } from "@/lib/firebase-admin";
 
 export async function GET() {
   try {
-    // Check if Auto Notifications are enabled
-    const settingsSnap = await adminDB.doc("autonotify/notifications").get();
-    const settingsData = settingsSnap.data();
-
-    if (!settingsData?.autoSend) {
-      return NextResponse.json({ message: "Auto notifications disabled" });
-    }
-
     // Locations list
     const locations = [
       { name: "Quadrangle", collection: "sensor_dataQuad" },
@@ -22,13 +14,15 @@ export async function GET() {
       name: string;
       uv: number;
       temperature: number;
-      heatIndex: number;
       aqi: number;
+      uvSev: string;
+      tempSev: string;
+      aqiSev: string;
       alerts: string[];
       highestSeverity: string;
     }[] = [];
 
-    // Fetch and analyze each location
+    // LOOP THROUGH LOCATIONS
     for (const loc of locations) {
       const snap = await adminDB
         .collection(loc.collection)
@@ -41,126 +35,139 @@ export async function GET() {
       const latest = snap.docs[0].data();
       const uv = Number(latest.uv_index || 0);
       const temperature = Number(latest.temperature || 0);
-      const humidity = Number(latest.humidity || 0);
       const aqi = Number(latest.pm2_5 || 0);
 
-      //  heat index calculation (in °C)
-      function heatIndexCelsius(tempC: number, rh: number): number {
-        if (!tempC || !rh) return tempC ?? 0;
-        const T = (tempC * 9) / 5 + 32; // C → F
-        const R = rh;
-        const HI =
-          -42.379 +
-          2.04901523 * T +
-          10.14333127 * R -
-          0.22475541 * T * R -
-          0.00683783 * T * T -
-          0.05481717 * R * R +
-          0.00122874 * T * T * R +
-          0.00085282 * T * R * R -
-          0.00000199 * T * T * R * R;
-
-        return ((HI - 32) * 5) / 9;
-      }
-
-      const heatIndex = heatIndexCelsius(temperature, humidity);
-
+      // FETCH THRESHOLDS
       const thresholds = {
         AQI: await adminDB.collection("categories/AQI/thresholds").get(),
         UV: await adminDB.collection("categories/UV/thresholds").get(),
-        Heat: await adminDB.collection("categories/Heat/thresholds").get(),
+        Temperature: await adminDB
+          .collection("categories/Temperature/thresholds")
+          .get(),
       };
 
       let aqiSev = "low",
         uvSev = "low",
-        heatSev = "low";
+        tempSev = "low";
 
-      // Match current values to severity
+      // CHECK SEVERITY RANGES
       for (const [cat, tSnap] of Object.entries(thresholds)) {
         tSnap.forEach((docSnap) => {
           const { min, max, severity } = docSnap.data();
           const value = cat === "AQI" ? aqi : cat === "UV" ? uv : temperature;
+
           if (value >= min && value <= max) {
             if (cat === "AQI") aqiSev = severity.toLowerCase();
             if (cat === "UV") uvSev = severity.toLowerCase();
-            if (cat === "Heat") heatSev = severity.toLowerCase();
+            if (cat === "Temperature") tempSev = severity.toLowerCase();
           }
         });
       }
 
-      // Determine highest severity per location
+      // Determine highest severity
       const severityOrder = ["low", "moderate", "high", "extreme", "critical"];
-      const sevLevels = [aqiSev, uvSev, heatSev];
+      const sevLevels = [aqiSev, uvSev, tempSev];
       let highest = "low";
       sevLevels.forEach((s) => {
-        if (severityOrder.indexOf(s) > severityOrder.indexOf(highest))
+        if (severityOrder.indexOf(s) > severityOrder.indexOf(highest)) {
           highest = s;
+        }
       });
 
-      // Include metrics with severity
+      // Build alerts ONLY for high/exceeding
       const alerts: string[] = [];
 
-      const sevLabels: Record<string, string> = {
-        moderate: "moderate",
-        high: "high",
-        extreme: "extreme",
-        critical: "critical",
-      };
+      if (uvSev === "high" || uvSev === "extreme" || uvSev === "critical")
+        alerts.push(`High UV (${uv})`);
 
-      if (["moderate", "high", "extreme", "critical"].includes(uvSev))
-        alerts.push(`UV is ${sevLabels[uvSev]}`);
-      if (["moderate", "high", "extreme", "critical"].includes(heatSev))
-        alerts.push(`Heat is ${sevLabels[heatSev]}`);
-      if (["moderate", "high", "extreme", "critical"].includes(aqiSev))
-        alerts.push(`AQI is ${sevLabels[aqiSev]}`);
+      if (tempSev === "high" || tempSev === "extreme" || tempSev === "critical")
+        alerts.push(`High Temperature (${temperature.toFixed(1)}°C)`);
+
+      if (aqiSev === "high" || aqiSev === "extreme" || aqiSev === "critical")
+        alerts.push(`Poor Air Quality (${aqi} AQI)`);
 
       results.push({
         name: loc.name,
         uv,
         temperature,
-        heatIndex,
         aqi,
+        uvSev,
+        tempSev,
+        aqiSev,
         alerts,
         highestSeverity: highest,
       });
     }
 
-    // Compare all readings - build final message
-    let title = "";
-    let body = "";
+    // FILTER LOCATIONS THAT EXCEEDED THRESHOLDS
+    const exceeded = results.filter((r) => r.alerts.length > 0);
 
-    // Find the location with the highest temperature
-    if (results.length === 0) {
-      title = "🌤 No Data Available";
-      body = "No recent sensor readings found.";
-    } else {
-      const hottest = results.reduce((max, curr) =>
-        curr.heatIndex > max.heatIndex ? curr : max
-      );
+    // NONE EXCEEDED → DO NOT SEND
+    if (exceeded.length === 0) {
+      return NextResponse.json({
+        message: "No high readings detected. No notification sent.",
+      });
+    }
 
-      if (hottest.highestSeverity === "low" && hottest.alerts.length === 0) {
-        title = "🌤 All Locations Stable";
-        body = "Conditions normal.";
-      } else {
-        title = "⚠️ Environmental Readings Detected!";
-        body = `${hottest.temperature.toFixed(1)}°C in ${
-          hottest.name
-        } — feels like ${hottest.heatIndex.toFixed(
-          0
-        )}°C — See other parameters - AQI - UV.`;
+    // Build notification with ALL locations that have high readings
+    const locationCount = exceeded.length;
+    const title =
+      locationCount === 1
+        ? `⚠️ High Environmental Reading - ${exceeded[0].name}`
+        : `⚠️ High Readings at ${locationCount} Locations`;
+
+    const locationMessages: string[] = [];
+
+    // Build message for each location
+    for (const loc of exceeded) {
+      const readings: string[] = [];
+
+      if (
+        loc.uvSev === "high" ||
+        loc.uvSev === "extreme" ||
+        loc.uvSev === "critical"
+      ) {
+        readings.push(`UV: ${loc.uv} (${loc.uvSev})`);
+      }
+
+      if (
+        loc.tempSev === "high" ||
+        loc.tempSev === "extreme" ||
+        loc.tempSev === "critical"
+      ) {
+        readings.push(`Temp: ${loc.temperature.toFixed(1)}°C (${loc.tempSev})`);
+      }
+
+      if (
+        loc.aqiSev === "high" ||
+        loc.aqiSev === "extreme" ||
+        loc.aqiSev === "critical"
+      ) {
+        readings.push(`AQI: ${loc.aqi} (${loc.aqiSev})`);
+      }
+
+      if (readings.length > 0) {
+        locationMessages.push(
+          `${loc.name}: ${readings.join(", ")} \nSee dashboard for details.`
+        );
       }
     }
 
-    // Send the notification
+    const body = locationMessages.join("\n");
+
+    // SEND NOTIFICATION
     await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/send-notifications`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ title, body }),
     });
 
-    console.log("✅ Auto notification sent:", { title, body });
-
-    return NextResponse.json({ title, body, message: "Notification sent" });
+    return NextResponse.json({
+      title,
+      body,
+      message: "Notification sent",
+      locationsAlerted: locationCount,
+    });
   } catch (err: any) {
     console.error("❌ Auto-notify error:", err);
     return NextResponse.json({ error: err.message }, { status: 500 });
