@@ -41,9 +41,7 @@ export async function GET() {
       const thresholds = {
         AQI: await adminDB.collection("categories/AQI/thresholds").get(),
         UV: await adminDB.collection("categories/UV/thresholds").get(),
-        Temperature: await adminDB
-          .collection("categories/Temperature/thresholds")
-          .get(),
+        Heat: await adminDB.collection("categories/Heat/thresholds").get(),
       };
 
       let aqiSev = "low",
@@ -59,7 +57,7 @@ export async function GET() {
           if (value >= min && value <= max) {
             if (cat === "AQI") aqiSev = severity.toLowerCase();
             if (cat === "UV") uvSev = severity.toLowerCase();
-            if (cat === "Temperature") tempSev = severity.toLowerCase();
+            if (cat === "Heat") tempSev = severity.toLowerCase();
           }
         });
       }
@@ -80,7 +78,11 @@ export async function GET() {
       if (uvSev === "high" || uvSev === "extreme" || uvSev === "critical")
         alerts.push(`High UV (${uv})`);
 
-      if (tempSev === "high" || tempSev === "extreme" || tempSev === "critical")
+      if (
+        tempSev === "caution" ||
+        tempSev === "extreme danger" ||
+        tempSev === "critical"
+      )
         alerts.push(`High Temperature (${temperature.toFixed(1)}°C)`);
 
       if (aqiSev === "high" || aqiSev === "extreme" || aqiSev === "critical")
@@ -131,8 +133,8 @@ export async function GET() {
       }
 
       if (
-        loc.tempSev === "high" ||
-        loc.tempSev === "extreme" ||
+        loc.tempSev === "caution" ||
+        loc.tempSev === "extreme danger" ||
         loc.tempSev === "critical"
       ) {
         readings.push(`Temp: ${loc.temperature.toFixed(1)}°C (${loc.tempSev})`);
@@ -147,13 +149,11 @@ export async function GET() {
       }
 
       if (readings.length > 0) {
-        locationMessages.push(
-          `${loc.name}: ${readings.join(", ")} \nSee dashboard for details.`
-        );
+        locationMessages.push(`${loc.name}: ${readings.join(", ")}`);
       }
     }
 
-    const body = locationMessages.join("\n");
+    const body = locationMessages.join("\n") + "\n\nSee dashboard for details.";
 
     // SEND NOTIFICATION
     await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/send-notifications`, {
