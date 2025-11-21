@@ -603,7 +603,7 @@ export default function AdminNotifPage() {
                     ))}
                   </select>
                 </div>
-                {/* Auto Notifications Toggle */}
+                {/* Auto Notifications Toggle
                 <div>
                   <label className="block text-sm font-medium text-white">
                     Notifications
@@ -631,7 +631,7 @@ export default function AdminNotifPage() {
                       />
                     </button>
                   </div>
-                </div>
+                </div> */}
               </div>
             </div>
           </header>
