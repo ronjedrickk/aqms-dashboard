@@ -145,9 +145,9 @@ function normalizeSeverity(raw: string | number, type: string): string {
   // If raw is a number, handle numeric ranges directly
   if (typeof raw === "number") {
     if (type === "Heat") {
-      if (raw <= 27.5) return "low";
-      if (raw <= 32) return "moderate"; // Changed from "normal"
-      if (raw <= 39) return "high"; // Changed from "caution"
+      if (raw <= 27.9) return "low";
+      if (raw <= 32.9) return "moderate"; // Changed from "normal"
+      if (raw <= 38.9) return "high"; // Changed from "caution"
       if (raw <= 51) return "extreme";
       return "critical";
     }
@@ -171,9 +171,9 @@ function normalizeSeverity(raw: string | number, type: string): string {
   const s = (raw || "").toString().toLowerCase();
 
   if (type === "Heat") {
-    if (s.includes("low") || s.includes("0-27")) return "low";
-    if (s.includes("normal") || s.includes("28-32")) return "moderate"; // Changed from "normal"
-    if (s.includes("caution") || s.includes("33-39")) return "high"; // Changed from "caution"
+    if (s.includes("low") || s.includes("0-27.9")) return "low";
+    if (s.includes("normal") || s.includes("28-32.9")) return "moderate"; // Changed from "normal"
+    if (s.includes("caution") || s.includes("33-38.9")) return "high"; // Changed from "caution"
     if (s.includes("extreme danger") || s.includes("40-100")) return "extreme";
     if (s.includes("critical")) return "critical";
     return "low"; // safe fallback

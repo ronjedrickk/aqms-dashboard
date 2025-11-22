@@ -8,9 +8,6 @@ type LocationType =
   | "Falcon Bridge"
   | "SV Entrance / Parking Lot";
 
-// Keep your existing LocationType definition
-// type LocationType = "Quadrangle" | "Falcon Bridge" | "SV Entrance / Parking Lot";
-
 // Update the SensorCardProps interface to use LocationType
 interface SensorCardProps {
   title: string;
@@ -74,9 +71,9 @@ export function SensorCard({
         if (value <= 12) return "extreme";
         return "critical";
       case "Heat":
-        if (value <= 27) return "low";
-        if (value <= 32) return "moderate";
-        if (value <= 39) return "high";
+        if (value <= 27.9) return "low";
+        if (value <= 32.9) return "moderate";
+        if (value <= 38.9) return "high";
         if (value <= 100) return "extreme";
         return "critical";
       case "AQI":
