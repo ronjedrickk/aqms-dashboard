@@ -125,15 +125,15 @@ function getBgColorFromSeverity(severity: string): string {
       return "bg-gray-400";
   }
 }
-// Add this function near your other utility functions at the top of the file
+// severity label
 function getSeverityLabel(severity: string): string {
   switch (severity.toLowerCase()) {
     case "low":
-      return "Good";
+      return "Normal";
     case "moderate":
       return "Moderate";
     case "high":
-      return "Unhealthy";
+      return "Danger";
     case "extreme":
       return "Extreme Danger";
     case "critical":
@@ -144,12 +144,12 @@ function getSeverityLabel(severity: string): string {
 }
 
 function normalizeSeverity(raw: string | number, type: string): string {
-  // If raw is a number, handle numeric ranges directly
+  // raw number
   if (typeof raw === "number") {
     if (type === "Heat") {
       if (raw <= 27.9) return "low";
-      if (raw <= 32.9) return "moderate"; // Changed from "normal"
-      if (raw <= 38.9) return "high"; // Changed from "caution"
+      if (raw <= 32.9) return "moderate";
+      if (raw <= 38.9) return "high";
       if (raw <= 51) return "extreme";
       return "critical";
     }
@@ -174,8 +174,8 @@ function normalizeSeverity(raw: string | number, type: string): string {
 
   if (type === "Heat") {
     if (s.includes("low") || s.includes("0-27.9")) return "low";
-    if (s.includes("normal") || s.includes("28-32.9")) return "moderate"; // Changed from "normal"
-    if (s.includes("caution") || s.includes("33-38.9")) return "high"; // Changed from "caution"
+    if (s.includes("normal") || s.includes("28-32.9")) return "moderate";
+    if (s.includes("caution") || s.includes("33-38.9")) return "high";
     if (s.includes("extreme danger") || s.includes("40-100")) return "extreme";
     if (s.includes("critical")) return "critical";
     return "low"; // safe fallback
@@ -560,7 +560,13 @@ export default function AdminPage() {
                         key={location}
                         className="flex flex-col items-center p-3 rounded-lg bg-opacity-10 bg-white"
                       >
-                        <span className={`${colorClass} text-md mb-1`}>
+                        <span
+                          className={`${colorClass} ${
+                            location === "SV Entrance / Parking Lot"
+                              ? "text-[1.06rem]"
+                              : "text-xl"
+                          } mb-1`}
+                        >
                           {location}
                         </span>
                         <span
@@ -635,7 +641,13 @@ export default function AdminPage() {
                         key={location}
                         className="flex flex-col items-center p-3 rounded-lg bg-opacity-10 bg-white"
                       >
-                        <span className={`${colorClass} text-md mb-1`}>
+                        <span
+                          className={`${colorClass} ${
+                            location === "SV Entrance / Parking Lot"
+                              ? "text-[1.06rem]"
+                              : "text-xl"
+                          } mb-1`}
+                        >
                           {location}
                         </span>
                         <span
@@ -720,7 +732,13 @@ export default function AdminPage() {
                         key={location}
                         className="flex flex-col items-center p-3 rounded-lg bg-opacity-10 bg-white"
                       >
-                        <span className={`${colorClass} text-md mb-1`}>
+                        <span
+                          className={`${colorClass} ${
+                            location === "SV Entrance / Parking Lot"
+                              ? "text-[1.06rem]"
+                              : "text-xl"
+                          } mb-1`}
+                        >
                           {location}
                         </span>
                         <span

@@ -152,7 +152,7 @@ export function Combined({ data }: { data: ChartDataPoint[] }) {
 
                 {lastPoint !== undefined && Number.isFinite(latestAqi) && (
                   <ReferenceDot
-                    x={timeFormattedData.length - 1}
+                    x={lastPoint.timeLabel}
                     y={latestAqi as number}
                     r={6}
                     fill="#ef4444"
@@ -170,7 +170,7 @@ export function Combined({ data }: { data: ChartDataPoint[] }) {
                 )}
                 {lastPoint !== undefined && Number.isFinite(latestUv) && (
                   <ReferenceDot
-                    x={timeFormattedData.length - 1}
+                    x={lastPoint.timeLabel}
                     y={latestUv as number}
                     r={6}
                     fill="#7F5283"
@@ -187,7 +187,7 @@ export function Combined({ data }: { data: ChartDataPoint[] }) {
                 )}
                 {lastPoint !== undefined && Number.isFinite(latestHeat) && (
                   <ReferenceDot
-                    x={timeFormattedData.length - 1}
+                    x={lastPoint.timeLabel}
                     y={latestHeat as number}
                     r={6}
                     fill="#FCB53B"
