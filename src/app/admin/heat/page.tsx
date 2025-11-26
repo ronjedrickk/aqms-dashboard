@@ -31,6 +31,7 @@ export type LocationKey =
 
 export type SensorRow = {
   timeLabel: string;
+  timestamp: Date;
   aqi: number;
   uv: number;
   heat: number;
@@ -146,14 +147,13 @@ export default function AdminHeatPage() {
       collection(db, collectionName),
       where("created_at", ">=", Timestamp.fromDate(start)),
       where("created_at", "<", Timestamp.fromDate(end)),
-      orderBy("created_at", "desc"),
-      limit(150)
+      orderBy("created_at", "desc")
     );
 
     const unsub = onSnapshot(
       qRef,
       (snap) => {
-        const mapped: SensorRow[] = snap.docs.map((doc) => {
+        const allMapped: SensorRow[] = snap.docs.map((doc) => {
           const d = doc.data() as SensorData;
           const date = d?.created_at?.toDate?.() ?? new Date();
           const timeLabel = date.toLocaleTimeString();
@@ -168,6 +168,7 @@ export default function AdminHeatPage() {
 
           return {
             timeLabel,
+            timestamp: date,
             aqi: pm25,
             uv,
             heat,
@@ -175,7 +176,22 @@ export default function AdminHeatPage() {
             humidity: humidity ?? undefined,
           };
         });
-        setRows(mapped);
+
+        // Filter to show only readings at 5-minute intervals
+        const filtered: SensorRow[] = [];
+        let lastMinute = -1;
+
+        for (const row of allMapped) {
+          const minutes = row.timestamp.getMinutes();
+          
+          // Include if minutes are at 0, 5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55
+          if (minutes % 5 === 0 && minutes !== lastMinute) {
+            filtered.push(row);
+            lastMinute = minutes;
+          }
+        }
+
+        setRows(filtered);
         setLoading(false);
       },
       () => setLoading(false)
